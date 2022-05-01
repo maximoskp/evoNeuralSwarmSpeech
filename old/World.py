@@ -22,16 +22,18 @@ class Constants:
                 'acceleration_limit': 1.0,
                 'perception_radius': 11.0,
                 'food_level': 1.0,
-                'food_depletion': 0.1,
-                'food_radius': 1.0
+                'food_depletion': 1.0,
+                'food_radius': 1.0,
+                'reproduction_radius': 1.0
             },
             'predator': {
                 'velocity_limit': 2.0,
                 'acceleration_limit': 2.0,
                 'perception_radius': 10.0,
-                'food_level': 1.0,
-                'food_depletion': 0.01,
-                'food_radius': 10.0
+                'food_level': 2.0,
+                'food_depletion': 2.0,
+                'food_radius': 5.0,
+                'reproduction_radius': 5.0
             },
             'prey': {
                 'velocity_limit': 3.0,
@@ -39,7 +41,8 @@ class Constants:
                 'perception_radius': 15.0,
                 'food_level': 2.0,
                 'food_depletion': 2.0,
-                'food_radius': 0.0
+                'food_radius': 15.0,
+                'reproduction_radius': 7.5
             }
         }
     # end make_agent_constants

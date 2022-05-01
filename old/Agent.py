@@ -22,27 +22,32 @@ class GenericAgent:
         # 15. Average velocity of enemies y.
         # 16. Closest enemy velocity x.
         # 17. Closest enemy velocity y.
-        # 18. Friend loudest messages (int from bits).
-        # 19. Enemy loudest messages (int from bits).
-        # 20. Distance from wall x.
-        # 21. Distance from wall x.
-        self.external_input_size = 21
+        # 18. Closest food location x.
+        # 19. Closest food location y.
+        # 20. Friend messages (int from bits).
+        # 21. Enemy messages (int from bits).
+        # 23. Distance from wall x.
+        # 24. Distance from wall x.
+        self.external_input_size = 24
         # Internal input:
         # 1. Life level.
-        # 2. Self velocity x.
-        # 3. Self velocity y.
-        # 4. Self acceleration x.
-        # 5. Self acceleration y.
-        self.internal_input_size = 5
+        # 2. Food level. 
+        # 3. Self velocity x.
+        # 4. Self velocity y.
+        # 5. Self acceleration x.
+        # 6. Self acceleration y.
+        self.internal_input_size = 6
         # Motion output:
-        # 1. Accelerate to average friends location (percentage of max, in [-1,1])
-        # 2. Accelerate to closest friend location (percentage of max, in [-1,1])
-        # 3. Accelerate to align velocity with friends (what does negative mean?).
-        # 4. Accelerate to average enemy location (percentage of max, in [-1,1]).
-        # 5. Accelerate to closest enemy location (percentage of max, in [-1,1]).
-        # 6. Accelerate to align velocity with enemies (what does negative mean?).
-        # 7. Accelerate away from wall (percentage of max, in [-1,1]).
-        self.motion_output_size = 7
+        # 1. Acceleration to current direction (percentage of max, in [-1,1]).
+        # 2. Accelerate to average friends location (percentage of max, in [-1,1])
+        # 3. Accelerate to closest friend location (percentage of max, in [-1,1])
+        # 4. Accelerate to align velocity with friends (what does negative mean?).
+        # 5. Accelerate to average enemy location (percentage of max, in [-1,1]).
+        # 6. Accelerate to closest enemy location (percentage of max, in [-1,1]).
+        # 7. Accelerate to align velocity with enemies (what does negative mean?).
+        # 8. Accelerate towards food object (percentage of max, in [-1,1]).
+        # 9. Accelerate away from wall (percentage of max, in [-1,1]).
+        self.motion_output_size = 8
         # speech information
         self.speech_bits = 4
         # WEIGHTS
@@ -72,6 +77,9 @@ class GenericAgent:
             # spoken message
             'w_speech': np.zeros( (self.latent_size , self.speech_bits) ),
             'bias_speech': np.zeros( self.speech_bits ),
+            # eat flag
+            'w_eat': np.zeros( self.latent_size ),
+            'bias_eat': np.zeros( 1 ),
             # motion weights
             'w_motion': np.zeros( (self.latent_size , self.motion_output_size) ),
             'bias_motion': np.zeros( self.motion_output_size )

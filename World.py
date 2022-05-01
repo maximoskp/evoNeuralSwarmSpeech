@@ -48,8 +48,6 @@ class Constants:
         self.world_width = 700
         self.world_height = 700
         self.initial_food_available = 100
-        self.food_dispersion = 100
-        self.food_replenishment_iterations = 10
         self.total_predator_agents = 100
         self.total_prey_agents = 100
     # end make_world_constants
@@ -65,33 +63,31 @@ class Environment:
         self.genetics = Evolution.Genetics()
     # end init
     
-    def make_initial_food(self):
-        self.food_positions = []
-        x = np.random.normal( self.constants.world_width/2, self.constants.food_dispersion , self.constants.initial_food_available )
-        y = np.random.normal( self.constants.world_height/2, self.constants.food_dispersion , self.constants.initial_food_available )
-        for i in range(x.size):
-            self.food_positions.append( np.array([ x[i], y[i] ]) )
-    # end make_initial_food
-    
     def update(self):
         self.total_iterations += 1
         self.update_food()
         self.update_agents()
     # end update
     
-    def update_food(self):
-        if self.total_iterations % self.constants.food_replenishment_iterations == 0:
-            x = np.random.normal( self.constants.world_width/2, self.constants.food_dispersion )
-            y = np.random.normal( self.constants.world_height/2, self.constants.food_dispersion )
-            self.food_positions.append( np.array([ x, y ]) )
-    # end update_food
-    
     def update_agents(self):
+        agents2die = {
+            'predator': [],
+            'prey': []
+        }
         for a in self.prey_agents:
             a.update_friends_and_enemies( friends=self.prey_agents, enemies=self.predator_agents )
-            a.update_food_intake()
+            a.move()
         for a in self.predator_agents:
             a.update_friends_and_enemies( friends=self.predator_agents, enemies=self.prey_agents )
+            a.move()
+            a2d = a.update_food()
+            agents2die['predator'].extend( a2d['predator'] )
+            agents2die['prey'].extend( a2d['prey'] )
+        # kill agents
+        for a in agents2die['predator']:
+            self.predator_agents.remove( a )
+        for a in agents2die['prey']:
+            self.prey_agents.remove( a )
     # end update_agents
     
     def evolve(self):

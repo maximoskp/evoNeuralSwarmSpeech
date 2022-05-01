@@ -16,3 +16,7 @@ def limit_xy(x, y, m):
         n = 0
     return n*x , n*y
 # end limit_xy
+
+def dist_2d_arrays( x , y ):
+    return np.sqrt( (x[0]-y[0])**2 + (x[1]-y[1])**2 )
+# end dist_2d_arrays

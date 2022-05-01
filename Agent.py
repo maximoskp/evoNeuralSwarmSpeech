@@ -61,6 +61,7 @@ class GenericAgent:
         # position, velocity and acceleration
         self.init_random()
         self.is_alive = True
+        self.food_level = self.constances.agent_constants[self.category]['food_level']
     # end __init__
 
     def init_weights_zero(self):
@@ -111,8 +112,47 @@ class GenericAgent:
     # end init_random_position_velocity
 
     def update_friends_and_enemies( self, friends=None, enemies=None ):
-        print('updating friends and enemies', friends, enemies)
+        # friends
+        perceived_friends = []
+        self.perceived_friends_mean_location = []
+        closest_friend_distance = np.inf
+        self.closest_friend_location = []
+        for f in self.friends:
+            if aux.dist_2d_arrays( [self.x, self.y], [f.x, f.y] ) < self.constances.agent_constants[self.category]['perception_radius'] :
+                perceived_friends.append( [f.x, f.y] )
+            if aux.dist_2d_arrays( [self.x, self.y], [f.x, f.y] ) < closest_friend_distance:
+                self.closest_friend_location = [f.x, f.y]
+                closest_friend_distance = aux.dist_2d_arrays( [self.x, self.y], [f.x, f.y] )
+        if len( perceived_friends ) > 0:
+            self.perceived_friends_mean_location = np.mean( np.array( perceived_friends ), axis=0 )
+        else:
+            self.perceived_friends_mean_location = np.array( [self.x, self.y] )
+        # TODO: get loudest message of friends
+        # enemies
+        perceived_enemies = []
+        self.perceived_enemies_mean_location = []
+        closest_enemy_distance = np.inf
+        self.closest_enemy = None
+        for f in self.enemies:
+            if aux.dist_2d_arrays( [self.x, self.y], [f.x, f.y] ) < self.constances.agent_constants[self.category]['perception_radius'] :
+                perceived_enemies.append( [f.x, f.y] )
+            if aux.dist_2d_arrays( [self.x, self.y], [f.x, f.y] ) < closest_enemy_distance:
+                self.closest_enemy = f
+                closest_enemy_distance = aux.dist_2d_arrays( [self.x, self.y], [f.x, f.y] )
+        if len( perceived_enemies ) > 0:
+            self.perceived_enemies_mean_location = np.mean( np.array( perceived_enemies ), axis=0 )
+        else:
+            self.perceived_enemies_mean_location = np.array( [np.inf, np.inf] )
+        # TODO: get loudest message of enemies
     # end update_friends_and_enemies
+    
+    def move(self):
+        print('here s the money')
+    # end move
+    
+    def update_food( self ):
+        print('to be overriden')
+    # end update_food
 # end GenericAgent
 
 class PredatorAgent(GenericAgent):
@@ -121,8 +161,20 @@ class PredatorAgent(GenericAgent):
         super().__init__(genome, constants)
     # end init
     
-    def update_food_intake( self ):
-        print('update food take')
+    def update_food( self ):
+        self.food_level -= self.constances.agent_constants[self.category]['food_depletion']
+        agents2die = {
+            'predator': [],
+            'prey': []
+        }
+        if self.food_level < 0:
+            self.is_alive = False
+            agents2die['predator'].append(self)
+        if self.is_alive and aux.dist_2d_arrays( [self.x, self.y], self.closest_enemy_location[0]) < self.constances.agent_constants[self.category]['food_radius'] and self.food_level < self.constances.agent_constants[self.category]['food_level']/2 :
+            self.food_level = self.constances.agent_constants[self.category]['food_level']
+            agents2die['prey'].append(self.closest_enemy)
+        return agents2die
+    # end update_food
 # end PredatorAgent
 
 class PreyAgent(GenericAgent):

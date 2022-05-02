@@ -8,6 +8,9 @@ Created on Sun May  1 08:00:26 2022
 
 import numpy as np
 import Evolution
+import matplotlib.pyplot as plt
+import os
+import auxilliary_functions as aux
 
 class Constants:
     def __init__(self):
@@ -48,8 +51,8 @@ class Constants:
     # end make_agent_constants
     
     def make_world_constants(self):
-        self.world_width = 700
-        self.world_height = 700
+        self.world_width = 900
+        self.world_height = 900
         self.total_predator_agents = 100
         self.total_prey_agents = 100
     # end make_world_constants
@@ -92,6 +95,7 @@ class Environment:
     # end update_agents
     
     def evolve(self):
+        self.total_iterations = 0
         self.prey_agents = self.genetics.evolve_population(self.prey_agents, self.constants.total_prey_agents)
         # restore food levels
         for p in self.predator_agents:
@@ -116,4 +120,39 @@ class Environment:
         self.std_predator_food_level = np.std( self.predator_food_levels )
         self.max_predator_food_level = np.max( self.predator_food_levels )
         self.min_predator_food_level = np.min( self.predator_food_levels )
+    # end compute_stats
+    
+    def plot_iteration(self, generation=0):
+        if not os.path.exists('figs'):
+            os.makedirs('figs')
+        if not os.path.exists('figs/generation_' + "{:05d}".format(generation)):
+            os.makedirs('figs/generation_' + "{:05d}".format(generation))
+        plt.clf()
+        for p in self.predator_agents:
+            plt.plot(p.x, p.y, 'r.')
+            if p.closest_enemy is not None:
+                if aux.dist_2d_arrays([p.x, p.y], [p.closest_enemy.x, p.closest_enemy.y]) <= self.constants.agent_constants['predator']['food_radius']:
+                    plt.plot([p.x, p.closest_enemy.x],[p.y, p.closest_enemy.y], '-',c='red', alpha=0.2)
+                else:
+                    plt.plot([p.x, p.closest_enemy.x],[p.y, p.closest_enemy.y], '-',c='white', alpha=0.2)
+            plt.text(p.x, p.y, "{:.2f}".format(p.food_level), c='white', alpha=0.3)
+        for p in self.prey_agents:
+            plt.plot(p.x, p.y, 'g.')
+        plt.xticks([])
+        plt.yticks([])
+        plt.xlim([0, self.constants.world_width])
+        plt.ylim([0, self.constants.world_height])
+        # frame1 = plt.gca()
+        # frame1.axes.xaxis.set_ticklabels([])
+        # frame1.axes.yaxis.set_ticklabels([])
+        ax = plt.gca()
+        ax.set_facecolor('black')
+        plt.savefig('figs/generation_' + "{:05d}".format(generation) + '/iteration_' + "{:05d}".format(self.total_iterations) )
+    # end plot_iteration
+    
+    def save_video(self, generation=0):
+        if not os.path.exists('figs/generation_' + "{:05d}".format(generation)):
+            print('ERROR: no folder named figs/generation_' + "{:05d}".format(generation))
+        else:
+            os.system('ffmpeg -r 24 -f image2 -pattern_type glob -i "' + 'figs/generation_' + "{:05d}".format(generation) +'/*?png" -vcodec libx264 -crf 20 -pix_fmt yuv420p ' + 'figs/generation_' + "{:05d}".format(generation) + '/output.mp4')
 # end Environment

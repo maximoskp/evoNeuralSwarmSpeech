@@ -127,9 +127,9 @@ class GenericAgent:
                 friends_velocities.append( [f.vx, f.vy] )
                 friend_messages.append( f.message )
                 self.friends_number += 1
-            if aux.dist_2d_arrays( [self.x, self.y], [f.x, f.y] ) < closest_friend_distance:
-                self.closest_friend_location = [f.x, f.y]
-                self.closest_friend_velocity = [f.vx, f.vy]
+                if aux.dist_2d_arrays( [self.x, self.y], [f.x, f.y] ) < closest_friend_distance:
+                    self.closest_friend_location = [f.x, f.y]
+                    self.closest_friend_velocity = [f.vx, f.vy]
                 closest_friend_distance = aux.dist_2d_arrays( [self.x, self.y], [f.x, f.y] )
         if len( perceived_friends ) > 0:
             self.friends_mean_location = np.mean( np.array( perceived_friends ).reshape((len(perceived_friends),2)), axis=0 )
@@ -164,11 +164,12 @@ class GenericAgent:
                 enemies_velocities.append( [f.vx, f.vy] )
                 enemy_messages.append( f.message )
                 self.enemies_number += 1
-            if aux.dist_2d_arrays( [self.x, self.y], [f.x, f.y] ) < closest_enemy_distance:
-                self.closest_enemy = f
-                self.closest_enemy_location = [f.x, f.y]
-                self.closest_enemy_velocity = [f.vx, f.vy]
-                self.closest_enemy_distance = aux.dist_2d_arrays( [self.x, self.y], [f.x, f.y] )
+                if aux.dist_2d_arrays( [self.x, self.y], [f.x, f.y] ) < closest_enemy_distance:
+                    self.closest_enemy = f
+                    self.closest_enemy_location = [f.x, f.y]
+                    self.closest_enemy_velocity = [f.vx, f.vy]
+                    self.closest_enemy_distance = aux.dist_2d_arrays( [self.x, self.y], [f.x, f.y] )
+                    closest_enemy_distance = self.closest_enemy_distance
         if len( perceived_enemies ) > 0:
             self.enemies_mean_location = np.mean( np.array( perceived_enemies ).reshape((len(perceived_enemies),2)), axis=0 )
             self.enemies_mean_velocity = np.mean( np.array( enemies_velocities ).reshape((len(enemies_velocities),2)), axis=0 )
@@ -229,13 +230,15 @@ class GenericAgent:
         # average friends acceleration
         self.accelerate_to_location_with_multiplier( self.friends_mean_location , self.motion_output[0] )
         # closest friend acceleration
-        self.accelerate_to_location_with_multiplier( self.closest_friend_location, self.motion_output[1] )
+        if len(self.closest_friend_location) > 0:
+            self.accelerate_to_location_with_multiplier( self.closest_friend_location, self.motion_output[1] )
         # average friends velocity acceleration
         self.accelerate_to_align_with_multiplier( self.friends_mean_velocity, self.motion_output[2] )
         # average enemies acceleration
         self.accelerate_to_location_with_multiplier( self.enemies_mean_location , self.motion_output[3] )
         # closest enemy acceleration
-        self.accelerate_to_location_with_multiplier( self.closest_enemy_location, self.motion_output[4] )
+        if self.closest_enemy is not None:
+            self.accelerate_to_location_with_multiplier( self.closest_enemy_location, self.motion_output[4] )
         # average enemies velocity acceleration
         self.accelerate_to_align_with_multiplier( self.enemies_mean_velocity, self.motion_output[5] )
         # wall acceleration
@@ -249,12 +252,16 @@ class GenericAgent:
         self.y += self.vy
         if self.x < 0:
             self.x = -self.x
+            self.vx = -self.vx
         if self.x > self.constants.world_width:
-            self.x = self.constants.world_width - self.x
+            self.x = 2*self.constants.world_width - self.x
+            self.vx = -self.vx
         if self.y < 0:
             self.y = -self.y
+            self.vy = -self.vy
         if self.y > self.constants.world_height:
-            self.y = self.constants.world_height - self.x
+            self.y = 2*self.constants.world_height - self.y
+            self.vy = -self.vy
     # end move
     
     def accelerate_to_location_with_multiplier( self, p, m ):
@@ -293,10 +300,11 @@ class PredatorAgent(GenericAgent):
         if self.food_level < 0:
             self.is_alive = False
             agents2die['predator'].append(self)
-        if self.is_alive and self.closest_enemy.is_alive and aux.dist_2d_arrays( [self.x, self.y], self.closest_enemy_location ) < self.constants.agent_constants[self.category]['food_radius'] and self.food_level < self.constants.agent_constants[self.category]['food_replenishment'] :
-            self.food_level = self.constants.agent_constants[self.category]['food_level']
-            self.closest_enemy.is_alive = False
-            agents2die['prey'].append(self.closest_enemy)
+        if self.closest_enemy is not None:
+            if self.is_alive and self.closest_enemy.is_alive and aux.dist_2d_arrays( [self.x, self.y], self.closest_enemy_location ) < self.constants.agent_constants[self.category]['food_radius'] and self.food_level < self.constants.agent_constants[self.category]['food_replenishment'] :
+                self.food_level = self.constants.agent_constants[self.category]['food_level']
+                self.closest_enemy.is_alive = False
+                agents2die['prey'].append(self.closest_enemy)
         return agents2die
     # end update_food
 # end PredatorAgent

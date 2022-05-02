@@ -23,23 +23,26 @@ class Constants:
                 'perception_radius': 11.0,
                 'food_level': 1.0,
                 'food_depletion': 0.1,
-                'food_radius': 1.0
+                'food_radius': 1.0,
+                'food_replenishment': 70
             },
             'predator': {
-                'velocity_limit': 2.0,
-                'acceleration_limit': 2.0,
-                'perception_radius': 10.0,
-                'food_level': 1.0,
-                'food_depletion': 0.01,
-                'food_radius': 10.0
+                'velocity_limit': 7.5,
+                'acceleration_limit': 0.75,
+                'perception_radius': 100.0,
+                'food_level': 100.0,
+                'food_depletion': 1.0,
+                'food_radius': 30.0,
+                'food_replenishment': 70
             },
             'prey': {
-                'velocity_limit': 3.0,
-                'acceleration_limit': 3.0,
-                'perception_radius': 15.0,
-                'food_level': 2.0,
-                'food_depletion': 2.0,
-                'food_radius': 0.0
+                'velocity_limit': 5.0,
+                'acceleration_limit': 0.5,
+                'perception_radius': 100.0,
+                'food_level': 1.0,
+                'food_depletion': 1.0,
+                'food_radius': 0.0,
+                'food_replenishment': 70
             }
         }
     # end make_agent_constants
@@ -47,7 +50,6 @@ class Constants:
     def make_world_constants(self):
         self.world_width = 700
         self.world_height = 700
-        self.initial_food_available = 100
         self.total_predator_agents = 100
         self.total_prey_agents = 100
     # end make_world_constants
@@ -57,7 +59,6 @@ class Environment:
     def __init__(self, constants):
         self.total_iterations = 0
         self.constants = constants
-        self.make_initial_food()
         self.predator_agents = []
         self.prey_agents = []
         self.genetics = Evolution.Genetics()
@@ -65,8 +66,8 @@ class Environment:
     
     def update(self):
         self.total_iterations += 1
-        self.update_food()
         self.update_agents()
+        self.compute_stats()
     # end update
     
     def update_agents(self):
@@ -92,6 +93,9 @@ class Environment:
     
     def evolve(self):
         self.prey_agents = self.genetics.evolve_population(self.prey_agents, self.constants.total_prey_agents)
+        # restore food levels
+        for p in self.predator_agents:
+            p.restore_food_level()
         self.predator_agents = self.genetics.evolve_population(self.predator_agents, self.constants.total_predator_agents)
     # end evolve
     
@@ -102,4 +106,14 @@ class Environment:
     def set_prey_agents(self, agents):
         self.prey_agents = agents
     # end set_prey_agents
+    
+    def compute_stats(self):
+        self.predator_food_levels = np.zeros( len( self.predator_agents ) )
+        for i, p in enumerate(self.predator_agents):
+            self.predator_food_levels[i] = p.food_level
+        self.mean_predator_food_level = np.mean( self.predator_food_levels )
+        self.median_predator_food_level = np.median( self.predator_food_levels )
+        self.std_predator_food_level = np.std( self.predator_food_levels )
+        self.max_predator_food_level = np.max( self.predator_food_levels )
+        self.min_predator_food_level = np.min( self.predator_food_levels )
 # end Environment

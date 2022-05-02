@@ -27,7 +27,7 @@ class Genetics:
         self.total_new = total_new
         while len(p) + len( self.new_population ) < self.total_new:
             self.apply_evolution_step( p )
-        return p.extend( self.new_population )
+        return p + self.new_population
     # end evolve_population
     
     def apply_evolution_step( self, p ):
@@ -55,11 +55,11 @@ class Genetics:
         g1[c1:c2] = p2.genome[c1:c2]
         g2[c1:c2] = p1.genome[c1:c2]
         if p1.category == 'predator':
-            new1 = Agent.PredatorAgent( genome=g1 )
-            new2 = Agent.PredatorAgent( genome=g2 )
+            new1 = Agent.PredatorAgent( genome=g1, constants=p1.constants, environment=p1.environment )
+            new2 = Agent.PredatorAgent( genome=g2, constants=p1.constants, environment=p1.environment )
         elif p1.category == 'prey':
-            new1 = Agent.PreyAgent( genome=g1 )
-            new2 = Agent.PreyAgent( genome=g2 )
+            new1 = Agent.PreyAgent( genome=g1, constants=p1.constants, environment=p1.environment )
+            new2 = Agent.PreyAgent( genome=g2, constants=p1.constants, environment=p1.environment )
         else:
             print('unknown agent category in evolution: ', p1.category)
         return new1, new2

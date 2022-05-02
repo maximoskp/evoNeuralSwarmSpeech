@@ -20,3 +20,9 @@ def limit_xy(x, y, m):
 def dist_2d_arrays( x , y ):
     return np.sqrt( (x[0]-y[0])**2 + (x[1]-y[1])**2 )
 # end dist_2d_arrays
+
+def cos_dist( x , y ):
+    if np.linalg.norm(x) == 0 or np.linalg.norm(y) == 0:
+        return 0
+    return np.dot(x,y)/(np.linalg.norm(x)*np.linalg.norm(y))
+# end cos_dist

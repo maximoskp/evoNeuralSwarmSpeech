@@ -31,7 +31,9 @@ environment.set_prey_agents(b)
 total_generations_number = 1000
 current_generation = 0
 while current_generation < evoConst.total_generations_number:
+    print('generation: ' + str(current_generation) + '-----------------')
     while len(environment.predator_agents) > evoConst.minPopulationSize and len(environment.prey_agents) > evoConst.minPopulationSize:
         environment.update()
+        print('predators: ' + str(len(environment.predator_agents)) + ' (' + "{:.2f}".format(environment.min_predator_food_level) + "/{:.2f}".format(environment.mean_predator_food_level)+ "/{:.2f}".format(environment.max_predator_food_level) + ') ' + '\t - prey: ' + str(len(environment.prey_agents)) )
     environment.evolve()
     current_generation += 1

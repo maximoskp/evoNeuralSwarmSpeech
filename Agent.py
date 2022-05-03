@@ -217,7 +217,7 @@ class GenericAgent:
         latent = np.tanh( np.matmul( network_input , self.weights['w_in'] ) + self.weights['bias_in'] )
         self.motion_output = np.tanh( np.matmul( latent , self.weights['w_motion'] ) + self.weights['bias_motion'] )[0]
         self.speech_output = np.tanh( np.matmul( latent , self.weights['w_speech'] ) + self.weights['bias_speech'] )[0]
-        binary_speech = (self.speech_output >= 0.5).astype(int)
+        binary_speech = (self.speech_output >= 0.0).astype(int)
         self.message = binary_speech.dot( 1 << np.arange(binary_speech.size)[::-1] )
     # end run_network
     

@@ -11,6 +11,11 @@ import Evolution
 import matplotlib.pyplot as plt
 import os
 import auxilliary_functions as aux
+import sys
+if sys.version_info >= (3,8):
+    import pickle
+else:
+    import pickle5 as pickle
 
 class Constants:
     def __init__(self):
@@ -125,6 +130,19 @@ class Environment:
         self.max_predator_food_level = np.max( self.predator_food_levels )
         self.min_predator_food_level = np.min( self.predator_food_levels )
     # end compute_stats
+
+    def save_weights(self, generation=0):
+        weights = {
+            'predator': [],
+            'prey': []
+        }
+        for p in self.predator_agents:
+            weights['predator'].append( p.genome )
+        for p in self.prey_agents:
+            weights['prey'].append( p.genome )
+        with open('weights/weights_' + "{:05d}".format(generation), 'wb') as handle:
+            pickle.dump(weights, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    # end save_weights
     
     def plot_iteration(self, generation=0):
         if not os.path.exists('figs'):

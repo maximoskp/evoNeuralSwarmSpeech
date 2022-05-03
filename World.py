@@ -32,16 +32,16 @@ class Constants:
             'predator': {
                 'velocity_limit': 7.5,
                 'acceleration_limit': 0.75,
-                'perception_radius': 100.0,
+                'perception_radius': 200.0,
                 'food_level': 100.0,
                 'food_depletion': 1.0,
-                'food_radius': 30.0,
+                'food_radius': 50.0,
                 'food_replenishment': 70
             },
             'prey': {
                 'velocity_limit': 5.0,
                 'acceleration_limit': 0.5,
-                'perception_radius': 100.0,
+                'perception_radius': 200.0,
                 'food_level': 1.0,
                 'food_depletion': 1.0,
                 'food_radius': 0.0,
@@ -51,8 +51,8 @@ class Constants:
     # end make_agent_constants
     
     def make_world_constants(self):
-        self.world_width = 900
-        self.world_height = 900
+        self.world_width = 2000
+        self.world_height = 2000
         self.total_predator_agents = 100
         self.total_prey_agents = 100
     # end make_world_constants
@@ -136,7 +136,7 @@ class Environment:
             plt.plot(p.x, p.y, 'r.')
             if p.closest_enemy is not None:
                 if aux.dist_2d_arrays([p.x, p.y], [p.closest_enemy.x, p.closest_enemy.y]) <= self.constants.agent_constants['predator']['food_radius']:
-                    plt.plot([p.x, p.closest_enemy.x],[p.y, p.closest_enemy.y], '-',c='red', alpha=0.2)
+                    plt.plot([p.x, p.closest_enemy.x],[p.y, p.closest_enemy.y], '-',c='red', alpha=0.9)
                 else:
                     plt.plot([p.x, p.closest_enemy.x],[p.y, p.closest_enemy.y], '-',c='white', alpha=0.2)
             plt.text(p.x, p.y, "{:.2f}".format(p.food_level), c='white', alpha=0.3)

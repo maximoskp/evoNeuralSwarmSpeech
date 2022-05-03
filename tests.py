@@ -62,4 +62,4 @@ while current_generation < evoConst.total_generations_number:
         writer = csv.writer(f)
         writer.writerow([ current_generation, environment.total_iterations, len(environment.predator_agents), len(environment.prey_agents), environment.min_predator_food_level, environment.mean_predator_food_level, environment.median_predator_food_level, environment.max_predator_food_level ])
     environment.evolve()
-   current_generation += 1
+    current_generation += 1

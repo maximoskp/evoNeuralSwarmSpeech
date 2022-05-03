@@ -97,9 +97,13 @@ class Environment:
     def evolve(self):
         self.total_iterations = 0
         self.prey_agents = self.genetics.evolve_population(self.prey_agents, self.constants.total_prey_agents)
-        # restore food levels
+        # randomise position, velocity and acceleation
+        for p in self.prey_agents:
+            p.init_random()
+        # restore food levels and randomise position, velocity and acceleation
         for p in self.predator_agents:
             p.restore_food_level()
+            p.init_random()
         self.predator_agents = self.genetics.evolve_population(self.predator_agents, self.constants.total_predator_agents)
     # end evolve
     
@@ -154,5 +158,5 @@ class Environment:
         if not os.path.exists('figs/generation_' + "{:05d}".format(generation)):
             print('ERROR: no folder named figs/generation_' + "{:05d}".format(generation))
         else:
-            os.system('ffmpeg -r 24 -f image2 -pattern_type glob -i "' + 'figs/generation_' + "{:05d}".format(generation) +'/*?png" -vcodec libx264 -crf 20 -pix_fmt yuv420p ' + 'figs/generation_' + "{:05d}".format(generation) + '/output.mp4')
+            os.system('ffmpeg -r 24 -f image2 -pattern_type glob -i "' + 'figs/generation_' + "{:05d}".format(generation) +'/*?png" -vcodec libx264 -crf 20 -pix_fmt yuv420p ' + 'videos/generation_' + "{:05d}".format(generation) + '.mp4')
 # end Environment

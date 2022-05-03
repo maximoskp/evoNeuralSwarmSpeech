@@ -58,7 +58,7 @@ while current_generation < evoConst.total_generations_number:
             writer = csv.writer(f)
             writer.writerow([ current_generation, environment.total_iterations, len(environment.predator_agents), len(environment.prey_agents), environment.min_predator_food_level, environment.mean_predator_food_level, environment.median_predator_food_level, environment.max_predator_food_level ])
     environment.save_video( generation=current_generation )
-    with open('data/summary.csv', 'a') as f:
+    with open('data/_summary.csv', 'a') as f:
         writer = csv.writer(f)
         writer.writerow([ current_generation, environment.total_iterations, len(environment.predator_agents), len(environment.prey_agents), environment.min_predator_food_level, environment.mean_predator_food_level, environment.median_predator_food_level, environment.max_predator_food_level ])
     environment.evolve()

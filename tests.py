@@ -30,7 +30,6 @@ for i in range(constants.total_prey_agents):
 environment.set_predator_agents(a)
 environment.set_prey_agents(b)
 
-total_generations_number = 10000
 current_generation = 0
 
 if not os.path.exists('figs'):

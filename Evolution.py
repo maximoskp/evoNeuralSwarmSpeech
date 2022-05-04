@@ -12,7 +12,7 @@ import Agent
 class Constants:
     def __init__(self):
         self.minPopulationSize = 10
-        self.total_generations_number = 1000
+        self.total_generations_number = 10000
     # end
 # end Constants
 

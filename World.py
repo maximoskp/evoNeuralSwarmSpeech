@@ -38,10 +38,10 @@ class Constants:
                 'velocity_limit': 10.0,
                 'acceleration_limit': 1.0,
                 'perception_radius': 200.0,
-                'food_level': 100.0,
+                'food_level': 200.0,
                 'food_depletion': 1.0,
                 'food_radius': 50.0,
-                'food_replenishment': 70
+                'food_replenishment': 100
             },
             'prey': {
                 'velocity_limit': 9.5,
@@ -56,8 +56,8 @@ class Constants:
     # end make_agent_constants
     
     def make_world_constants(self):
-        self.world_width = 2000
-        self.world_height = 2000
+        self.world_width = 1920
+        self.world_height = 1440
         self.total_predator_agents = 100
         self.total_prey_agents = 100
     # end make_world_constants
@@ -150,6 +150,8 @@ class Environment:
         if not os.path.exists('figs/generation_' + "{:05d}".format(generation)):
             os.makedirs('figs/generation_' + "{:05d}".format(generation))
         plt.clf()
+        for p in self.prey_agents:
+            plt.plot(p.x, p.y, 'g.')
         for p in self.predator_agents:
             plt.plot(p.x, p.y, 'r.')
             if p.closest_enemy is not None:
@@ -157,9 +159,12 @@ class Environment:
                     plt.plot([p.x, p.closest_enemy.x],[p.y, p.closest_enemy.y], '-',c='red', alpha=0.9)
                 else:
                     plt.plot([p.x, p.closest_enemy.x],[p.y, p.closest_enemy.y], '-',c='white', alpha=0.2)
-            plt.text(p.x, p.y, "{:.2f}".format(p.food_level), c='white', alpha=0.3)
-        for p in self.prey_agents:
-            plt.plot(p.x, p.y, 'g.')
+            if p.food_level <= self.constants.agent_constants['predator']['food_replenishment']:
+                # plt.text(p.x, p.y, "{:.2f}".format(p.food_level), c='red', alpha=0.3)
+                plt.text(p.x, p.y, str(int(p.food_level)), c='red', alpha=0.7)
+            else:
+                # plt.text(p.x, p.y, "{:.2f}".format(p.food_level), c='white', alpha=0.3)
+                plt.text(p.x, p.y, str(int(p.food_level)), c='white', alpha=0.3)
         plt.xticks([])
         plt.yticks([])
         plt.xlim([0, self.constants.world_width])

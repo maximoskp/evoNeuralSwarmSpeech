@@ -44,7 +44,8 @@ class GenericAgent:
         # 5. Accelerate to closest enemy location (percentage of max, in [-1,1]).
         # 6. Accelerate to align velocity with enemies (what does negative mean?).
         # 7. Accelerate away from wall (percentage of max, in [-1,1]).
-        self.motion_output_size = 7
+        # 8. Accelerate / deccelerate in current direction (percentage of current velocity, in [-1,1]).
+        self.motion_output_size = 8
         # message information
         self.message_bits = 2
         if not self.use_messages:
@@ -310,6 +311,15 @@ class GenericAgent:
             hitting_wall = True
         if hitting_wall:
             self.accelerate_to_location_with_multiplier( walls, self.motion_output[6] )
+        # accelerate / deccelerate to current direction
+        # if not moving, start moving to random direction
+        if np.abs( self.vx ) < 0.5 and np.abs( self.vy ) < 0.5:
+            tmp_x = 2*np.random.rand() - 1
+            tmp_y = 2*np.random.rand() - 1
+        else:
+            tmp_x = self.vx
+            tmp_y = self.vy
+        self.accelerate_to_align_with_multiplier( [tmp_x, tmp_y], self.motion_output[7] )
         self.ax , self.ay = aux.limit_xy( self.acceleration_array[0], self.acceleration_array[1], self.constants.agent_constants[self.category]['acceleration_limit'] )
         self.vx , self.vy = aux.limit_xy( self.vx + self.ax, self.vy + self.ay, self.constants.agent_constants[self.category]['velocity_limit'] )
         self.x += self.vx

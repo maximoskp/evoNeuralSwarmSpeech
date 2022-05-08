@@ -152,6 +152,8 @@ class GenericAgent:
         if len( perceived_friends ) > 0:
             self.friends_mean_location = np.mean( np.array( perceived_friends ).reshape((len(perceived_friends),2)), axis=0 )
             self.friends_mean_velocity = np.mean( np.array( friends_velocities ).reshape((len(friends_velocities),2)), axis=0 )
+            self.friends_proximity = aux.dist_2d_arrays([self.x, self.y], self.friends_mean_location)/self.constants.agent_constants[self.category]['perception_radius']
+            self.closest_friend_proximity = aux.dist_2d_arrays([self.x, self.y], self.closest_friend_location)/self.constants.agent_constants[self.category]['perception_radius']
             if self.use_messages:
                 self.friends_loudest_message = np.bincount( friend_messages ).argmax()
         else:
@@ -159,10 +161,10 @@ class GenericAgent:
             self.friends_mean_velocity = np.array( [self.vx, self.vy] )
             self.closest_friend_location = np.array( [self.x, self.y] )
             self.closest_friend_velocity = np.array( [self.vx, self.vy] )
+            self.friends_proximity = 1.1
+            self.closest_friend_proximity = 1.1
             if self.use_messages:
                 self.friends_loudest_message = 0
-        self.friends_proximity = aux.dist_2d_arrays([self.x, self.y], self.friends_mean_location)/self.constants.agent_constants[self.category]['perception_radius']
-        self.closest_friend_proximity = aux.dist_2d_arrays([self.x, self.y], self.closest_friend_location)/self.constants.agent_constants[self.category]['perception_radius']
         self.friends_velocity_alignment = aux.cos_dist([self.vx, self.vy], self.friends_mean_velocity)
         self.friends_velocity_magnitude = np.linalg.norm(self.friends_mean_velocity)
         self.closest_friend_velocity_alignment = aux.cos_dist([self.vx, self.vy], self.closest_friend_velocity)
@@ -194,17 +196,19 @@ class GenericAgent:
         if len( perceived_enemies ) > 0:
             self.enemies_mean_location = np.mean( np.array( perceived_enemies ).reshape((len(perceived_enemies),2)), axis=0 )
             self.enemies_mean_velocity = np.mean( np.array( enemies_velocities ).reshape((len(enemies_velocities),2)), axis=0 )
+            self.enemies_proximity = aux.dist_2d_arrays([self.x, self.y], self.enemies_mean_location)/self.constants.agent_constants[self.category]['perception_radius']
+            self.closest_enemy_proximity = aux.dist_2d_arrays([self.x, self.y], self.closest_enemy_location)/self.constants.agent_constants[self.category]['perception_radius']
             if self.use_messages:
                 self.enemies_loudest_message = np.bincount( enemy_messages ).argmax()
         else:
-            self.enemies_mean_location = np.array( [self.x+100*self.constants.agent_constants[self.category]['perception_radius'], self.y+100*self.constants.agent_constants[self.category]['perception_radius']] )
+            self.enemies_mean_location = np.array( [self.x, self.y] )
             self.enemies_mean_velocity = np.array( [0, 0] )
-            self.closest_enemy_location = np.array( [self.x+100*self.constants.agent_constants[self.category]['perception_radius'], self.y+100*self.constants.agent_constants[self.category]['perception_radius']] )
+            self.closest_enemy_location = np.array( [self.x, self.y] )
             self.closest_enemy_velocity = np.array( [0, 0] )
             if self.use_messages:
                 self.enemies_loudest_message = 0
-        self.enemies_proximity = aux.dist_2d_arrays([self.x, self.y], self.enemies_mean_location)/self.constants.agent_constants[self.category]['perception_radius']
-        self.closest_enemy_proximity = aux.dist_2d_arrays([self.x, self.y], self.closest_enemy_location)/self.constants.agent_constants[self.category]['perception_radius']
+            self.enemies_proximity = 1.1
+            self.closest_enemy_proximity = 1.1
         self.enemies_velocity_alignment = aux.cos_dist([self.vx, self.vy], self.enemies_mean_velocity)
         self.enemies_velocity_magnitude = np.linalg.norm(self.enemies_mean_velocity)
         self.closest_enemy_velocity_alignment = aux.cos_dist([self.vx, self.vy], self.closest_enemy_velocity)
@@ -230,8 +234,8 @@ class GenericAgent:
                 self.closest_enemy_velocity_magnitude, # 14
                 self.friends_loudest_message, #15
                 self.enemies_loudest_message, #16
-                min( self.x , self.constants.world_width - self.x )/self.constants.agent_constants[self.category]['perception_radius'], #17
-                min( self.y , self.constants.world_height - self.y )/self.constants.agent_constants[self.category]['perception_radius'], #18
+                min( min( self.x , self.constants.world_width - self.x )/self.constants.agent_constants[self.category]['perception_radius'], 1.1 ), #17
+                min( min( self.y , self.constants.world_height - self.y )/self.constants.agent_constants[self.category]['perception_radius'], 1.1 ), #18
                 self.food_level, # 1
                 self.vx, # 2
                 self.vy, # 3
@@ -254,8 +258,8 @@ class GenericAgent:
                 self.enemies_velocity_magnitude, # 12
                 self.closest_enemy_velocity_alignment, # 13
                 self.closest_enemy_velocity_magnitude, # 14
-                np.min( [self.x , self.constants.world_width - self.x, self.constants.agent_constants[self.category]['perception_radius']] )/self.constants.agent_constants[self.category]['perception_radius'], #15
-                np.min( [self.y , self.constants.world_height - self.y, self.constants.agent_constants[self.category]['perception_radius']] )/self.constants.agent_constants[self.category]['perception_radius'], #16
+                min( min( self.x , self.constants.world_width - self.x )/self.constants.agent_constants[self.category]['perception_radius'], 1.1 ), #15
+                min( min( self.y , self.constants.world_height - self.y )/self.constants.agent_constants[self.category]['perception_radius'], 1.1 ), #16
                 self.food_level, # 1
                 self.vx, # 2
                 self.vy, # 3
@@ -276,24 +280,36 @@ class GenericAgent:
         self.acceleration_array = np.zeros(2)
         self.location = np.array( [ self.x , self.y ] )
         # average friends acceleration
-        self.accelerate_to_location_with_multiplier( self.friends_mean_location , self.motion_output[0] )
+        if self.friends_number > 0:
+            self.accelerate_to_location_with_multiplier( self.friends_mean_location , self.motion_output[0] )
         # closest friend acceleration
         if len(self.closest_friend_location) > 0:
             self.accelerate_to_location_with_multiplier( self.closest_friend_location, self.motion_output[1] )
         # average friends velocity acceleration
-        self.accelerate_to_align_with_multiplier( self.friends_mean_velocity, self.motion_output[2] )
+        if self.friends_number > 0:
+            self.accelerate_to_align_with_multiplier( self.friends_mean_velocity, self.motion_output[2] )
         # average enemies acceleration
-        self.accelerate_to_location_with_multiplier( self.enemies_mean_location , self.motion_output[3] )
+        if self.enemies_number > 0:
+            self.accelerate_to_location_with_multiplier( self.enemies_mean_location , self.motion_output[3] )
         # closest enemy acceleration
         if self.closest_enemy is not None:
             self.accelerate_to_location_with_multiplier( self.closest_enemy_location, self.motion_output[4] )
         # average enemies velocity acceleration
-        self.accelerate_to_align_with_multiplier( self.enemies_mean_velocity, self.motion_output[5] )
+        if self.enemies_number > 0:
+            self.accelerate_to_align_with_multiplier( self.enemies_mean_velocity, self.motion_output[5] )
         # wall acceleration
-        tmp_x = self.constants.world_width * int(self.x < self.constants.world_width - self.x)
-        tmp_y = self.constants.world_height * int(self.y < self.constants.world_height - self.y)
-        walls = np.array( [ tmp_x, tmp_y ] )
-        self.accelerate_to_location_with_multiplier( walls, self.motion_output[6] )
+        tmp_x = self.constants.world_width * int(self.x > self.constants.world_width - self.x)
+        tmp_y = self.constants.world_height * int(self.y > self.constants.world_height - self.y)
+        walls = np.array( [ self.x, self.y ] )
+        hitting_wall = False
+        if np.abs( tmp_x - self.x ) < self.constants.agent_constants[self.category]['perception_radius']:
+            walls[0] = tmp_x
+            hitting_wall = True
+        if np.abs( tmp_y - self.y ) < self.constants.agent_constants[self.category]['perception_radius']:
+            walls[1] = tmp_y
+            hitting_wall = True
+        if hitting_wall:
+            self.accelerate_to_location_with_multiplier( walls, self.motion_output[6] )
         self.ax , self.ay = aux.limit_xy( self.acceleration_array[0], self.acceleration_array[1], self.constants.agent_constants[self.category]['acceleration_limit'] )
         self.vx , self.vy = aux.limit_xy( self.vx + self.ax, self.vy + self.ay, self.constants.agent_constants[self.category]['velocity_limit'] )
         self.x += self.vx

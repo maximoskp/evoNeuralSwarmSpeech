@@ -58,14 +58,15 @@ class Constants:
     def make_world_constants(self):
         self.world_width = 1920
         self.world_height = 1440
-        self.total_predator_agents = 100
-        self.total_prey_agents = 100
+        self.total_predator_agents = 50
+        self.total_prey_agents = 50
     # end make_world_constants
 # end Constants
 
 class Environment:
-    def __init__(self, constants):
+    def __init__(self, constants, session_name='test_session'):
         self.total_iterations = 0
+        self.session_name = session_name
         self.constants = constants
         self.predator_agents = []
         self.prey_agents = []
@@ -140,15 +141,13 @@ class Environment:
             weights['predator'].append( p.genome )
         for p in self.prey_agents:
             weights['prey'].append( p.genome )
-        with open('weights/weights_' + "{:05d}".format(generation), 'wb') as handle:
+        with open('weights/' + self.session_name + '/weights_' + "{:05d}".format(generation), 'wb') as handle:
             pickle.dump(weights, handle, protocol=pickle.HIGHEST_PROTOCOL)
     # end save_weights
     
     def plot_iteration(self, generation=0):
-        if not os.path.exists('figs'):
-            os.makedirs('figs')
-        if not os.path.exists('figs/generation_' + "{:05d}".format(generation)):
-            os.makedirs('figs/generation_' + "{:05d}".format(generation))
+        if not os.path.exists('figs/' + self.session_name + '/generation_' + "{:05d}".format(generation)):
+            os.makedirs('figs/' + self.session_name + '/generation_' + "{:05d}".format(generation))
         plt.clf()
         for p in self.prey_agents:
             plt.plot(p.x, p.y, 'g.')
@@ -174,12 +173,13 @@ class Environment:
         # frame1.axes.yaxis.set_ticklabels([])
         ax = plt.gca()
         ax.set_facecolor('black')
-        plt.savefig('figs/generation_' + "{:05d}".format(generation) + '/iteration_' + "{:05d}".format(self.total_iterations) )
+        plt.savefig('figs/' + self.session_name + '/generation_' + "{:05d}".format(generation) + '/iteration_' + "{:05d}".format(self.total_iterations) )
     # end plot_iteration
     
     def save_video(self, generation=0):
-        if not os.path.exists('figs/generation_' + "{:05d}".format(generation)):
-            print('ERROR: no folder named figs/generation_' + "{:05d}".format(generation))
+        if not os.path.exists('figs/' + self.session_name + '/generation_' + "{:05d}".format(generation)):
+            print('ERROR: no folder named figs/' + self.session_name + '/generation_' + "{:05d}".format(generation))
         else:
-            os.system('ffmpeg -r 24 -f image2 -pattern_type glob -i "' + 'figs/generation_' + "{:05d}".format(generation) +'/*?png" -vcodec libx264 -crf 20 -pix_fmt yuv420p ' + 'videos/generation_' + "{:05d}".format(generation) + '.mp4')
+            os.system('ffmpeg -r 24 -f image2 -pattern_type glob -i "' + 'figs/' + self.session_name + '/generation_' + "{:05d}".format(generation) +'/*?png" -vcodec libx264 -crf 20 -pix_fmt yuv420p ' + 'videos/' + self.session_name + '/generation_' + "{:05d}".format(generation) + '.mp4')
+        os.system('rm -r figs/' + self.session_name + '/generation_' + "{:05d}".format(generation))
 # end Environment

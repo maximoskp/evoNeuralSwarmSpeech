@@ -11,14 +11,14 @@ import Agent
 
 class Constants:
     def __init__(self):
-        self.minPopulationSize = 10
+        self.minPopulationSize = 5
         self.total_generations_number = 10000
     # end
 # end Constants
 
 class Genetics:
     def __init__(self):
-        self.mutation_probability = 0.5
+        self.mutation_probability = 0.9
         self.mutation_range = [-1, 1]
     # end init
     

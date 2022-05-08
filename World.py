@@ -17,6 +17,8 @@ if sys.version_info >= (3,8):
 else:
     import pickle5 as pickle
 
+np.random.seed(0)
+
 class Constants:
     def __init__(self):
         self.make_agent_constants()

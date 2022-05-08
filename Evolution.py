@@ -9,6 +9,8 @@ Created on Sun May  1 15:02:37 2022
 import numpy as np
 import Agent
 
+np.random.seed(0)
+
 class Constants:
     def __init__(self):
         self.minPopulationSize = 5

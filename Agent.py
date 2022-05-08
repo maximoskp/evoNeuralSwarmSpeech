@@ -1,6 +1,7 @@
 import numpy as np
 import auxilliary_functions as aux
-import time
+
+np.random.seed(0)
 
 class GenericAgent:
     category = 'generic'
@@ -41,8 +42,8 @@ class GenericAgent:
         # 6. Accelerate to align velocity with enemies (what does negative mean?).
         # 7. Accelerate away from wall (percentage of max, in [-1,1]).
         self.motion_output_size = 7
-        # speech information
-        self.speech_bits = 4
+        # message information
+        self.message_bits = 2
         # WEIGHTS
         self.latent_size = 10
         self.init_weights_zero()
@@ -70,8 +71,8 @@ class GenericAgent:
             'bias_in': np.zeros( self.latent_size ).reshape( (1, self.latent_size) ),
             # latent to:
             # spoken message
-            'w_speech': np.zeros( (self.latent_size , self.speech_bits) ),
-            'bias_speech': np.zeros( self.speech_bits ).reshape( (1,self.speech_bits) ),
+            'w_message': np.zeros( (self.latent_size , self.message_bits) ),
+            'bias_message': np.zeros( self.message_bits ).reshape( (1,self.message_bits) ),
             # motion weights
             'w_motion': np.zeros( (self.latent_size , self.motion_output_size) ),
             'bias_motion': np.zeros( self.motion_output_size ).reshape( (1,self.motion_output_size) )
@@ -216,9 +217,9 @@ class GenericAgent:
         ]).reshape( (1, self.external_input_size+self.internal_input_size) )
         latent = np.tanh( np.matmul( network_input , self.weights['w_in'] ) + self.weights['bias_in'] )
         self.motion_output = np.tanh( np.matmul( latent , self.weights['w_motion'] ) + self.weights['bias_motion'] )[0]
-        self.speech_output = np.tanh( np.matmul( latent , self.weights['w_speech'] ) + self.weights['bias_speech'] )[0]
-        binary_speech = (self.speech_output >= 0.0).astype(int)
-        self.message = binary_speech.dot( 1 << np.arange(binary_speech.size)[::-1] )
+        self.message_output = np.tanh( np.matmul( latent , self.weights['w_message'] ) + self.weights['bias_message'] )[0]
+        binary_message = (self.message_output >= 0.0).astype(int)
+        self.message = binary_message.dot( 1 << np.arange(binary_message.size)[::-1] )
     # end run_network
     
     def move(self):

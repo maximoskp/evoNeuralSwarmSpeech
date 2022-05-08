@@ -5,7 +5,8 @@ np.random.seed(0)
 
 class GenericAgent:
     category = 'generic'
-    def __init__(self, genome=None, constants=None, environment=None):
+    def __init__(self, genome=None, constants=None, environment=None, use_messages=True):
+        self.use_messages = use_messages
         # External input:
         # 1. Number of friends.
         # 2. Friends average proximity (in [0,1], normalized on perception radius).
@@ -26,6 +27,8 @@ class GenericAgent:
         # 17. Distance from wall x. (in [0,1], normalized on perception radius).
         # 18. Distance from wall y. (in [0,1], normalized on perception radius).
         self.external_input_size = 18
+        if not self.use_messages:
+            self.external_input_size = 16
         # Internal input:
         # 1. Life level.
         # 2. Self velocity x.
@@ -44,6 +47,8 @@ class GenericAgent:
         self.motion_output_size = 7
         # message information
         self.message_bits = 2
+        if not self.use_messages:
+            self.message_bits = 0
         # WEIGHTS
         self.latent_size = 10
         self.init_weights_zero()
@@ -77,6 +82,16 @@ class GenericAgent:
             'w_motion': np.zeros( (self.latent_size , self.motion_output_size) ),
             'bias_motion': np.zeros( self.motion_output_size ).reshape( (1,self.motion_output_size) )
         }
+        if not self.use_messages:
+            self.weights = {
+                # input to latent
+                'w_in': np.zeros( (self.internal_input_size + self.external_input_size , self.latent_size) ),
+                'bias_in': np.zeros( self.latent_size ).reshape( (1, self.latent_size) ),
+                # latent to:
+                # motion weights
+                'w_motion': np.zeros( (self.latent_size , self.motion_output_size) ),
+                'bias_motion': np.zeros( self.motion_output_size ).reshape( (1,self.motion_output_size) )
+            }
         self.weight_keys = self.weights.keys()
     # def end init_weights_zero
 
@@ -121,12 +136,14 @@ class GenericAgent:
         closest_friend_distance = np.inf
         self.closest_friend_location = []
         self.closest_friend_velocity = []
-        friend_messages = []
+        if self.use_messages:
+            friend_messages = []
         for f in friends:
             if aux.dist_2d_arrays( [self.x, self.y], [f.x, f.y] ) < self.constants.agent_constants[self.category]['perception_radius'] :
                 perceived_friends.append( [f.x, f.y] )
                 friends_velocities.append( [f.vx, f.vy] )
-                friend_messages.append( f.message )
+                if self.use_messages:
+                    friend_messages.append( f.message )
                 self.friends_number += 1
                 if aux.dist_2d_arrays( [self.x, self.y], [f.x, f.y] ) < closest_friend_distance:
                     self.closest_friend_location = [f.x, f.y]
@@ -135,13 +152,15 @@ class GenericAgent:
         if len( perceived_friends ) > 0:
             self.friends_mean_location = np.mean( np.array( perceived_friends ).reshape((len(perceived_friends),2)), axis=0 )
             self.friends_mean_velocity = np.mean( np.array( friends_velocities ).reshape((len(friends_velocities),2)), axis=0 )
-            self.friends_loudest_message = np.bincount( friend_messages ).argmax()
+            if self.use_messages:
+                self.friends_loudest_message = np.bincount( friend_messages ).argmax()
         else:
             self.friends_mean_location = np.array( [self.x, self.y] )
             self.friends_mean_velocity = np.array( [self.vx, self.vy] )
             self.closest_friend_location = np.array( [self.x, self.y] )
             self.closest_friend_velocity = np.array( [self.vx, self.vy] )
-            self.friends_loudest_message = 0
+            if self.use_messages:
+                self.friends_loudest_message = 0
         self.friends_proximity = aux.dist_2d_arrays([self.x, self.y], self.friends_mean_location)/self.constants.agent_constants[self.category]['perception_radius']
         self.closest_friend_proximity = aux.dist_2d_arrays([self.x, self.y], self.closest_friend_location)/self.constants.agent_constants[self.category]['perception_radius']
         self.friends_velocity_alignment = aux.cos_dist([self.vx, self.vy], self.friends_mean_velocity)
@@ -158,7 +177,8 @@ class GenericAgent:
         self.closest_enemy = None
         self.closest_enemy_location = []
         self.closest_enemy_velocity = []
-        enemy_messages = []
+        if self.use_messages:
+            enemy_messages = []
         for f in enemies:
             if aux.dist_2d_arrays( [self.x, self.y], [f.x, f.y] ) < self.constants.agent_constants[self.category]['perception_radius'] :
                 perceived_enemies.append( [f.x, f.y] )
@@ -174,13 +194,15 @@ class GenericAgent:
         if len( perceived_enemies ) > 0:
             self.enemies_mean_location = np.mean( np.array( perceived_enemies ).reshape((len(perceived_enemies),2)), axis=0 )
             self.enemies_mean_velocity = np.mean( np.array( enemies_velocities ).reshape((len(enemies_velocities),2)), axis=0 )
-            self.enemies_loudest_message = np.bincount( enemy_messages ).argmax()
+            if self.use_messages:
+                self.enemies_loudest_message = np.bincount( enemy_messages ).argmax()
         else:
-            self.enemies_mean_location = np.array( [self.x, self.y] )
+            self.enemies_mean_location = np.array( [self.x+100*self.constants.agent_constants[self.category]['perception_radius'], self.y+100*self.constants.agent_constants[self.category]['perception_radius']] )
             self.enemies_mean_velocity = np.array( [0, 0] )
-            self.closest_enemy_location = np.array( [self.x, self.y] )
+            self.closest_enemy_location = np.array( [self.x+100*self.constants.agent_constants[self.category]['perception_radius'], self.y+100*self.constants.agent_constants[self.category]['perception_radius']] )
             self.closest_enemy_velocity = np.array( [0, 0] )
-            self.enemies_loudest_message = 0
+            if self.use_messages:
+                self.enemies_loudest_message = 0
         self.enemies_proximity = aux.dist_2d_arrays([self.x, self.y], self.enemies_mean_location)/self.constants.agent_constants[self.category]['perception_radius']
         self.closest_enemy_proximity = aux.dist_2d_arrays([self.x, self.y], self.closest_enemy_location)/self.constants.agent_constants[self.category]['perception_radius']
         self.enemies_velocity_alignment = aux.cos_dist([self.vx, self.vy], self.enemies_mean_velocity)
@@ -190,31 +212,56 @@ class GenericAgent:
     # end update_friends_and_enemies
     
     def run_network(self):
-        network_input = np.array([
-            self.friends_number, # 1
-            self.friends_proximity, # 2
-            self.closest_friend_proximity, # 3
-            self.friends_velocity_alignment, # 4
-            self.friends_velocity_magnitude, # 5
-            self.closest_friend_velocity_alignment, # 6
-            self.closest_friend_velocity_magnitude, # 7
-            self.enemies_number, # 8
-            self.enemies_proximity, # 9
-            self.closest_enemy_proximity, # 10
-            self.enemies_velocity_alignment, # 11
-            self.enemies_velocity_magnitude, # 12
-            self.closest_enemy_velocity_alignment, # 13
-            self.closest_enemy_velocity_magnitude, # 14
-            self.friends_loudest_message, #15
-            self.enemies_loudest_message, #16
-            min( self.x , self.constants.world_width - self.x )/self.constants.agent_constants[self.category]['perception_radius'], #17
-            min( self.y , self.constants.world_height - self.y )/self.constants.agent_constants[self.category]['perception_radius'], #18
-            self.food_level, # 1
-            self.vx, # 2
-            self.vy, # 3
-            self.ax, # 4
-            self.ay # 5
-        ]).reshape( (1, self.external_input_size+self.internal_input_size) )
+        if self.use_messages:
+            network_input = np.array([
+                self.friends_number, # 1
+                self.friends_proximity, # 2
+                self.closest_friend_proximity, # 3
+                self.friends_velocity_alignment, # 4
+                self.friends_velocity_magnitude, # 5
+                self.closest_friend_velocity_alignment, # 6
+                self.closest_friend_velocity_magnitude, # 7
+                self.enemies_number, # 8
+                self.enemies_proximity, # 9
+                self.closest_enemy_proximity, # 10
+                self.enemies_velocity_alignment, # 11
+                self.enemies_velocity_magnitude, # 12
+                self.closest_enemy_velocity_alignment, # 13
+                self.closest_enemy_velocity_magnitude, # 14
+                self.friends_loudest_message, #15
+                self.enemies_loudest_message, #16
+                min( self.x , self.constants.world_width - self.x )/self.constants.agent_constants[self.category]['perception_radius'], #17
+                min( self.y , self.constants.world_height - self.y )/self.constants.agent_constants[self.category]['perception_radius'], #18
+                self.food_level, # 1
+                self.vx, # 2
+                self.vy, # 3
+                self.ax, # 4
+                self.ay # 5
+            ]).reshape( (1, self.external_input_size+self.internal_input_size) )
+        else:
+            network_input = np.array([
+                self.friends_number, # 1
+                self.friends_proximity, # 2
+                self.closest_friend_proximity, # 3
+                self.friends_velocity_alignment, # 4
+                self.friends_velocity_magnitude, # 5
+                self.closest_friend_velocity_alignment, # 6
+                self.closest_friend_velocity_magnitude, # 7
+                self.enemies_number, # 8
+                self.enemies_proximity, # 9
+                self.closest_enemy_proximity, # 10
+                self.enemies_velocity_alignment, # 11
+                self.enemies_velocity_magnitude, # 12
+                self.closest_enemy_velocity_alignment, # 13
+                self.closest_enemy_velocity_magnitude, # 14
+                np.min( [self.x , self.constants.world_width - self.x, self.constants.agent_constants[self.category]['perception_radius']] )/self.constants.agent_constants[self.category]['perception_radius'], #15
+                np.min( [self.y , self.constants.world_height - self.y, self.constants.agent_constants[self.category]['perception_radius']] )/self.constants.agent_constants[self.category]['perception_radius'], #16
+                self.food_level, # 1
+                self.vx, # 2
+                self.vy, # 3
+                self.ax, # 4
+                self.ay # 5
+            ]).reshape( (1, self.external_input_size+self.internal_input_size) )
         latent = np.tanh( np.matmul( network_input , self.weights['w_in'] ) + self.weights['bias_in'] )
         self.motion_output = np.tanh( np.matmul( latent , self.weights['w_motion'] ) + self.weights['bias_motion'] )[0]
         self.message_output = np.tanh( np.matmul( latent , self.weights['w_message'] ) + self.weights['bias_message'] )[0]
@@ -288,8 +335,8 @@ class GenericAgent:
 
 class PredatorAgent(GenericAgent):
     category = 'predator'
-    def __init__(self, genome=None, constants=None, environment=None):
-        super().__init__(genome, constants, environment=environment)
+    def __init__(self, genome=None, constants=None, environment=None, use_messages=True):
+        super().__init__(genome, constants, environment=environment, use_messages=True)
     # end init
     
     def update_food( self ):
@@ -312,7 +359,7 @@ class PredatorAgent(GenericAgent):
 
 class PreyAgent(GenericAgent):
     category = 'prey'
-    def __init__(self, genome=None, constants=None, environment=None):
-        super().__init__(genome, constants, environment=environment)
+    def __init__(self, genome=None, constants=None, environment=None, use_messages=True):
+        super().__init__(genome, constants, environment=environment, use_messages=True)
     # end init
 # end PreyAgent

@@ -2,4 +2,5 @@ figs/
 data/
 videos/
 weights/
-__pychache__/
+__pycache__/
+misc/

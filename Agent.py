@@ -270,9 +270,10 @@ class GenericAgent:
             ]).reshape( (1, self.external_input_size+self.internal_input_size) )
         latent = np.tanh( np.matmul( network_input , self.weights['w_in'] ) + self.weights['bias_in'] )
         self.motion_output = np.tanh( np.matmul( latent , self.weights['w_motion'] ) + self.weights['bias_motion'] )[0]
-        self.message_output = np.tanh( np.matmul( latent , self.weights['w_message'] ) + self.weights['bias_message'] )[0]
-        binary_message = (self.message_output >= 0.0).astype(int)
-        self.message = binary_message.dot( 1 << np.arange(binary_message.size)[::-1] )
+        if self.use_messages:
+            self.message_output = np.tanh( np.matmul( latent , self.weights['w_message'] ) + self.weights['bias_message'] )[0]
+            binary_message = (self.message_output >= 0.0).astype(int)
+            self.message = binary_message.dot( 1 << np.arange(binary_message.size)[::-1] )
     # end run_network
     
     def move(self):

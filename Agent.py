@@ -186,7 +186,8 @@ class GenericAgent:
             if aux.dist_2d_arrays( [self.x, self.y], [f.x, f.y] ) < self.constants.agent_constants[self.category]['perception_radius'] :
                 perceived_enemies.append( [f.x, f.y] )
                 enemies_velocities.append( [f.vx, f.vy] )
-                enemy_messages.append( f.message )
+                if self.use_messages:
+                    enemy_messages.append( f.message )
                 self.enemies_number += 1
                 if aux.dist_2d_arrays( [self.x, self.y], [f.x, f.y] ) < closest_enemy_distance:
                     self.closest_enemy = f

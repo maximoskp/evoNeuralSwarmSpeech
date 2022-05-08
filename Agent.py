@@ -288,7 +288,7 @@ class GenericAgent:
 class PredatorAgent(GenericAgent):
     category = 'predator'
     def __init__(self, genome=None, constants=None, environment=None):
-        super().__init__(genome, constants)
+        super().__init__(genome, constants, environment=environment)
     # end init
     
     def update_food( self ):
@@ -312,6 +312,6 @@ class PredatorAgent(GenericAgent):
 class PreyAgent(GenericAgent):
     category = 'prey'
     def __init__(self, genome=None, constants=None, environment=None):
-        super().__init__(genome, constants)
+        super().__init__(genome, constants, environment=environment)
     # end init
 # end PreyAgent

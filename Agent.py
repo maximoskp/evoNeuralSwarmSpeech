@@ -366,7 +366,7 @@ class PredatorAgent(GenericAgent):
     # end init
     
     def update_food( self ):
-        self.food_level -= self.constants.agent_constants[self.category]['food_depletion']*np.linalg.norm( [self.vx, self.vy] )/self.constants.agent_constants[self.category]['velocity_limit'] + np.random.random()*0.1*self.constants.agent_constants[self.category]['food_depletion']
+        self.food_level -= 0.5*self.constants.agent_constants[self.category]['food_depletion']*np.linalg.norm( [self.vx, self.vy] )/self.constants.agent_constants[self.category]['velocity_limit'] + 0.5*self.constants.agent_constants[self.category]['food_depletion']
         agents2die = {
             'predator': [],
             'prey': []

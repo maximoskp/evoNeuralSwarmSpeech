@@ -23,14 +23,16 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 
+session = 'FT'
+
 predator_w = []
 prey_w = []
 
-wl = os.listdir('../weights')
+wl = os.listdir('../weights/' + session)
 wl.sort()
 
 for wf in wl:
-    with open('../weights/' + wf, 'rb') as handle:
+    with open('../weights/' + session + '/' + wf, 'rb') as handle:
         w = pickle.load(handle)
         predator_w.append( w['predator'] )
         prey_w.append( w['prey'] )
@@ -45,12 +47,12 @@ prey = np.array( prey_w )
 pred_mean = np.mean( predator, axis=1 )
 prey_mean = np.mean( prey, axis=1 )
 
-predator_diffs = np.mean( np.diff( pred_mean, axis=1 ), axis=1 )
-prey_diffs = np.mean( np.diff( prey_mean, axis=1 ), axis=1 )
+predator_diffs = np.mean( np.abs( np.diff( pred_mean, axis=1 ) ), axis=1 )
+prey_diffs = np.mean( np.abs( np.diff( prey_mean, axis=1 ) ), axis=1 )
 
 # %% 
 
 plt.clf()
-plt.plot( predator_diffs )
-plt.plot( prey_diffs )
+plt.plot( predator_diffs[10:] )
+plt.plot( prey_diffs[10:] )
 plt.show()

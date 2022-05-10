@@ -15,14 +15,16 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 
+session = 'TF'
+
 predator_w = []
 prey_w = []
 
-wl = os.listdir('../weights')
+wl = os.listdir('../weights/' + session)
 wl.sort()
 
 for wf in wl:
-    with open('../weights/' + wf, 'rb') as handle:
+    with open('../weights/' + session + '/' + wf, 'rb') as handle:
         w = pickle.load(handle)
         predator_w.append( w['predator'] )
         prey_w.append( w['prey'] )

@@ -13,7 +13,8 @@ np.random.seed(0)
 
 class Constants:
     def __init__(self):
-        self.minPopulationSize = 50
+        self.minPopulationSize = 10
+        self.deadAgents2evolve = 40
         self.total_generations_number = 10000
     # end
 # end Constants

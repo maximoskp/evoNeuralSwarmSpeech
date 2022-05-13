@@ -72,7 +72,10 @@ class Environment:
         self.constants = constants
         self.predator_agents = []
         self.prey_agents = []
+        self.dead_predator_agents = []
+        self.dead_prey_agents = []
         self.genetics = Evolution.Genetics()
+        self.evoConst = Evolution.Constants()
     # end init
     
     def update(self):
@@ -97,22 +100,36 @@ class Environment:
             agents2die['prey'].extend( a2d['prey'] )
         # kill agents
         for a in agents2die['predator']:
+            self.dead_predator_agents.append( a )
             self.predator_agents.remove( a )
         for a in agents2die['prey']:
+            self.dead_prey_agents.append( a )
             self.prey_agents.remove( a )
     # end update_agents
     
     def evolve(self):
         self.total_iterations = 0
+        # evolve prey
+        tmp_i = -1
+        while len(self.prey_agents) < self.evoConst.minPopulationSize + self.evoConst.deadAgents2evolve:
+            self.prey_agents.append( self.dead_prey_agents[tmp_i] )
+            tmp_i -= 1
         self.prey_agents = self.genetics.evolve_population(self.prey_agents, self.constants.total_prey_agents)
         # randomise position, velocity and acceleation
         for p in self.prey_agents:
             p.init_random()
+        tmp_i = -1
+        # evolve predators
+        while len(self.predator_agents) < self.evoConst.minPopulationSize + self.evoConst.deadAgents2evolve:
+            self.predator_agents.append( self.dead_predator_agents[tmp_i] )
+            tmp_i -= 1
+        self.predator_agents = self.genetics.evolve_population(self.predator_agents, self.constants.total_predator_agents)
         # restore food levels and randomise position, velocity and acceleation
         for p in self.predator_agents:
             p.restore_food_level()
             p.init_random()
-        self.predator_agents = self.genetics.evolve_population(self.predator_agents, self.constants.total_predator_agents)
+        self.dead_predator_agents = []
+        self.dead_prey_agents = []
     # end evolve
     
     def set_predator_agents(self, agents):

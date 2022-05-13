@@ -387,7 +387,7 @@ class PredatorAgent(GenericAgent):
     def init_random(self):
         # position
         self.x = 0.5*np.random.rand()*self.constants.world_width
-        self.y = 0.5*np.random.rand()*self.constants.world_height
+        self.y = np.random.rand()*self.constants.world_height
         # velocity
         vx = 2*np.random.rand() - 1
         vy = 2*np.random.rand() - 1
@@ -407,7 +407,7 @@ class PreyAgent(GenericAgent):
     def init_random(self):
         # position
         self.x = (0.5 + 0.5*np.random.rand())*self.constants.world_width
-        self.y = (0.5 + 0.5*np.random.rand())*self.constants.world_height
+        self.y = np.random.rand()*self.constants.world_height
         # velocity
         vx = 2*np.random.rand() - 1
         vy = 2*np.random.rand() - 1

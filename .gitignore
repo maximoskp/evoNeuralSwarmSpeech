@@ -4,3 +4,5 @@ videos/
 weights/
 __pycache__/
 misc/
+
+.DS_Store

@@ -61,16 +61,16 @@ plt.show()
 
 # %% 
 
-plt.clf()
-plt.plot( df['predators']-df['prey'], '-b' )
-plt.plot(np.arange( len(df['predators']) ), np.zeros( len(df['predators']) ), 'r--')
-plt.show()
+# plt.clf()
+# plt.plot( df['predators']-df['prey'], '-b' )
+# plt.plot(np.arange( len(df['predators']) ), np.zeros( len(df['predators']) ), 'r--')
+# plt.show()
 
 # %% 
 
-y = df['predators']-df['prey']
-plt.clf()
-plt.plot( np.arange( len(df['predators']) )[y>=0], y[y>=0], '.r' )
-plt.plot( np.arange( len(df['predators']) )[y<0], y[y<0], '.g' )
-plt.plot(np.arange( len(df['predators']) ), np.zeros( len(df['predators']) ))
-plt.show()
+# y = df['predators']-df['prey']
+# plt.clf()
+# plt.plot( np.arange( len(df['predators']) )[y>=0], y[y>=0], '.r' )
+# plt.plot( np.arange( len(df['predators']) )[y<0], y[y<0], '.g' )
+# plt.plot(np.arange( len(df['predators']) ), np.zeros( len(df['predators']) ))
+# plt.show()

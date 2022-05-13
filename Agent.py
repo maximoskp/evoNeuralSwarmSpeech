@@ -383,6 +383,20 @@ class PredatorAgent(GenericAgent):
                 agents2die['prey'].append(self.closest_enemy)
         return agents2die
     # end update_food
+
+    def init_random(self):
+        # position
+        self.x = 0.25*np.random.rand()*self.constants.world_width
+        self.y = 0.25*np.random.rand()*self.constants.world_height
+        # velocity
+        vx = 2*np.random.rand() - 1
+        vy = 2*np.random.rand() - 1
+        self.vx , self.vy = aux.limit_xy( vx, vy, self.constants.agent_constants[self.category]['velocity_limit'] )
+        # acceleration
+        ax = 2*np.random.rand() - 1
+        ay = 2*np.random.rand() - 1
+        self.ax , self.ay = aux.limit_xy( ax, ay, self.constants.agent_constants[self.category]['acceleration_limit'] )
+    # end init_random_position_velocity
 # end PredatorAgent
 
 class PreyAgent(GenericAgent):
@@ -390,4 +404,17 @@ class PreyAgent(GenericAgent):
     def __init__(self, genome=None, constants=None, environment=None, use_messages=True):
         super().__init__(genome, constants, environment=environment, use_messages=use_messages)
     # end init
+    def init_random(self):
+        # position
+        self.x = (0.75 + 0.25*np.random.rand())*self.constants.world_width
+        self.y = (0.75 + 0.25*np.random.rand())*self.constants.world_height
+        # velocity
+        vx = 2*np.random.rand() - 1
+        vy = 2*np.random.rand() - 1
+        self.vx , self.vy = aux.limit_xy( vx, vy, self.constants.agent_constants[self.category]['velocity_limit'] )
+        # acceleration
+        ax = 2*np.random.rand() - 1
+        ay = 2*np.random.rand() - 1
+        self.ax , self.ay = aux.limit_xy( ax, ay, self.constants.agent_constants[self.category]['acceleration_limit'] )
+    # end init_random_position_velocity
 # end PreyAgent

@@ -66,6 +66,7 @@ class GenericAgent:
         # position, velocity and acceleration
         self.init_random()
         self.is_alive = True
+        self.death_iteration_number = 0
         self.food_level = self.constants.agent_constants[self.category]['food_level']
         self.message = 0
     # end __init__
@@ -385,6 +386,8 @@ class PredatorAgent(GenericAgent):
     # end update_food
 
     def init_random(self):
+        self.is_alive = True
+        self.death_iteration_number = 0
         # position
         self.x = 0.5*np.random.rand()*self.constants.world_width
         self.y = np.random.rand()*self.constants.world_height
@@ -405,6 +408,8 @@ class PreyAgent(GenericAgent):
         super().__init__(genome, constants, environment=environment, use_messages=use_messages)
     # end init
     def init_random(self):
+        self.is_alive = True
+        self.death_iteration_number = 0
         # position
         self.x = (0.5 + 0.5*np.random.rand())*self.constants.world_width
         self.y = np.random.rand()*self.constants.world_height

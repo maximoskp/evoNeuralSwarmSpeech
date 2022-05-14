@@ -14,7 +14,6 @@ np.random.seed(0)
 class Constants:
     def __init__(self):
         self.minPopulationSize = 1
-        self.deadAgents2evolve = 49
         self.total_generations_number = 10000
     # end
 # end Constants
@@ -23,19 +22,22 @@ class Genetics:
     def __init__(self):
         self.mutation_probability = 0.02
         self.mutation_range = [-1, 1]
+        self.fitness_bias = 3
     # end init
     
     def evolve_population( self, p , total_new ):
+        self.compute_cummulative_fitness( p )
         self.new_population = []
         self.total_new = total_new
-        while len(p) + len( self.new_population ) < self.total_new:
+        while len( self.new_population ) < self.total_new:
             self.apply_evolution_step( p )
-        return p + self.new_population
+        return self.new_population
     # end evolve_population
     
     def apply_evolution_step( self, p ):
         # select two individuals
-        i1, i2 = np.random.randint( len(p) ), np.random.randint( len(p) )
+        # i1, i2 = np.random.randint( len(p) ), np.random.randint( len(p) )
+        i1, i2 = self.double_roulette()
         # crossover
         new1, new2 = self.crossover( p[i1] , p[i2] )
         # mutation in children
@@ -43,11 +45,40 @@ class Genetics:
             self.mutation(new1)
         if np.random.random() <= self.mutation_probability:
             self.mutation(new2)
-        if len(p) + len( self.new_population ) < self.total_new:
+        if len( self.new_population ) < self.total_new:
             self.new_population.append(new1)
-        if len(p) + len( self.new_population ) < self.total_new:
+        if len( self.new_population ) < self.total_new:
             self.new_population.append(new2)
     # end apply_evolution_step
+    
+    def compute_cummulative_fitness(self, agents):
+        # get iterations until death
+        p = []
+        for agent in agents:
+            p.append( agent.death_iteration_number )
+        # normalise
+        n = (p-np.min(p)+1)/(np.max(p)-np.min(p)+1)
+        # apply bias
+        y = np.power(n, self.fitness_bias)
+        # cummulative
+        self.cummulative_fitness = np.cumsum(y)/np.sum(y)
+    # end compute_cummulative_fitness
+    
+    def double_roulette(self):
+        # dice and index
+        d = np.random.rand()
+        i1 = np.where(self.cummulative_fitness - d > 0)[0][0]
+        # other index with max tries
+        tries = 10
+        i2 = i1
+        while tries > 0 and i2 == i1:
+            d = np.random.rand()
+            i2 = np.where(self.cummulative_fitness - d > 0)[0][0]
+            tries -= 1
+        if tries <= 0:
+            print('ERROR: two same indexes for crossover after 10 tries. WTF?')
+        return i1, i2
+    # end double_roulette
     
     def crossover( self, p1, p2 ):
         gsize = p1.genome.size

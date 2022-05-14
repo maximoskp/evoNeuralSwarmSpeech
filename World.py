@@ -60,8 +60,8 @@ class Constants:
     def make_world_constants(self):
         self.world_width = 1920
         self.world_height = 1440
-        self.total_predator_agents = 100
-        self.total_prey_agents = 100
+        self.total_predator_agents = 10
+        self.total_prey_agents = 10
     # end make_world_constants
 # end Constants
 
@@ -108,28 +108,27 @@ class Environment:
     # end update_agents
     
     def evolve(self):
-        self.total_iterations = 0
         # evolve prey
-        tmp_i = -1
-        while len(self.prey_agents) < self.evoConst.minPopulationSize + self.evoConst.deadAgents2evolve:
-            self.prey_agents.append( self.dead_prey_agents[tmp_i] )
-            tmp_i -= 1
-        self.prey_agents = self.genetics.evolve_population(self.prey_agents, self.constants.total_prey_agents)
-        # randomise position, velocity and acceleation
+        # set iterations of death to alive agents
+        for i in range( len(self.prey_agents) ):
+            self.prey_agents[i].death_iteration_number = self.total_iterations
+        self.prey_agents = self.genetics.evolve_population(self.prey_agents + self.dead_prey_agents, self.constants.total_prey_agents)
+        # randomise position, velocity and acceleration - reset is_alive
         for p in self.prey_agents:
             p.init_random()
-        tmp_i = -1
         # evolve predators
-        while len(self.predator_agents) < self.evoConst.minPopulationSize + self.evoConst.deadAgents2evolve:
-            self.predator_agents.append( self.dead_predator_agents[tmp_i] )
-            tmp_i -= 1
-        self.predator_agents = self.genetics.evolve_population(self.predator_agents, self.constants.total_predator_agents)
-        # restore food levels and randomise position, velocity and acceleation
+        # set iterations of death to alive agents
+        for i in range( len(self.predator_agents) ):
+            self.predator_agents[i].death_iteration_number = self.total_iterations
+        self.predator_agents = self.genetics.evolve_population(self.predator_agents + self.dead_predator_agents, self.constants.total_predator_agents)
+        # restore food levels and randomise position, velocity and acceleration - reset is_alive
         for p in self.predator_agents:
             p.restore_food_level()
             p.init_random()
         self.dead_predator_agents = []
         self.dead_prey_agents = []
+        # reset iterations
+        self.total_iterations = 0
     # end evolve
     
     def set_predator_agents(self, agents):
@@ -141,14 +140,22 @@ class Environment:
     # end set_prey_agents
     
     def compute_stats(self):
-        self.predator_food_levels = np.zeros( len( self.predator_agents ) )
-        for i, p in enumerate(self.predator_agents):
-            self.predator_food_levels[i] = p.food_level
-        self.mean_predator_food_level = np.mean( self.predator_food_levels )
-        self.median_predator_food_level = np.median( self.predator_food_levels )
-        self.std_predator_food_level = np.std( self.predator_food_levels )
-        self.max_predator_food_level = np.max( self.predator_food_levels )
-        self.min_predator_food_level = np.min( self.predator_food_levels )
+        if len( self.predator_agents ) > 0:
+            self.predator_food_levels = np.zeros( len( self.predator_agents ) )
+            for i, p in enumerate(self.predator_agents):
+                self.predator_food_levels[i] = p.food_level
+            self.mean_predator_food_level = np.mean( self.predator_food_levels )
+            self.median_predator_food_level = np.median( self.predator_food_levels )
+            self.std_predator_food_level = np.std( self.predator_food_levels )
+            self.max_predator_food_level = np.max( self.predator_food_levels )
+            self.min_predator_food_level = np.min( self.predator_food_levels )
+        else:
+            self.predator_food_levels = np.zeros( 1 )
+            self.mean_predator_food_level = np.mean( self.predator_food_levels )
+            self.median_predator_food_level = np.median( self.predator_food_levels )
+            self.std_predator_food_level = np.std( self.predator_food_levels )
+            self.max_predator_food_level = np.max( self.predator_food_levels )
+            self.min_predator_food_level = np.min( self.predator_food_levels )
     # end compute_stats
 
     def save_weights(self, generation=0):

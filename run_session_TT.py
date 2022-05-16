@@ -12,7 +12,7 @@ import Evolution
 import csv
 import os
 
-session_name = 'TT'
+session_name = 'l_TT'
 
 # initialize constants and environment
 constants = World.Constants()

@@ -51,7 +51,8 @@ class GenericAgent:
         if not self.use_messages:
             self.message_bits = 0
         # WEIGHTS
-        self.latent_size = 10
+        self.latent_1_size = 20
+        self.latent_2_size = 10
         self.init_weights_zero()
         # genome
         if genome is None:
@@ -73,25 +74,31 @@ class GenericAgent:
 
     def init_weights_zero(self):
         self.weights = {
-            # input to latent
-            'w_in': np.zeros( (self.internal_input_size + self.external_input_size , self.latent_size) ),
-            'bias_in': np.zeros( self.latent_size ).reshape( (1, self.latent_size) ),
+            # input to latent 1
+            'w_in': np.zeros( (self.internal_input_size + self.external_input_size , self.latent_1_size) ),
+            'bias_in': np.zeros( self.latent_1_size ).reshape( (1, self.latent_1_size) ),
+            # latent 1 to latent 2
+            'w_latent': np.zeros( (self.latent_1_size, self.latent_2_size) ),
+            'bias_latent': np.zeros( self.latent_2_size ).reshape( (1, self.latent_2_size) ),
             # latent to:
             # spoken message
-            'w_message': np.zeros( (self.latent_size , self.message_bits) ),
+            'w_message': np.zeros( (self.latent_2_size , self.message_bits) ),
             'bias_message': np.zeros( self.message_bits ).reshape( (1,self.message_bits) ),
             # motion weights
-            'w_motion': np.zeros( (self.latent_size , self.motion_output_size) ),
+            'w_motion': np.zeros( (self.latent_2_size , self.motion_output_size) ),
             'bias_motion': np.zeros( self.motion_output_size ).reshape( (1,self.motion_output_size) )
         }
         if not self.use_messages:
             self.weights = {
-                # input to latent
-                'w_in': np.zeros( (self.internal_input_size + self.external_input_size , self.latent_size) ),
-                'bias_in': np.zeros( self.latent_size ).reshape( (1, self.latent_size) ),
+                # input to latent 1
+                'w_in': np.zeros( (self.internal_input_size + self.external_input_size , self.latent_1_size) ),
+                'bias_in': np.zeros( self.latent_1_size ).reshape( (1, self.latent_1_size) ),
+                # latent 1 to latent 2
+                'w_latent': np.zeros( (self.latent_1_size, self.latent_2_size) ),
+                'bias_latent': np.zeros( self.latent_2_size ).reshape( (1, self.latent_2_size) ),
                 # latent to:
                 # motion weights
-                'w_motion': np.zeros( (self.latent_size , self.motion_output_size) ),
+                'w_motion': np.zeros( (self.latent_2_size , self.motion_output_size) ),
                 'bias_motion': np.zeros( self.motion_output_size ).reshape( (1,self.motion_output_size) )
             }
         self.weight_keys = self.weights.keys()
@@ -269,10 +276,11 @@ class GenericAgent:
                 self.ax, # 4
                 self.ay # 5
             ]).reshape( (1, self.external_input_size+self.internal_input_size) )
-        latent = np.tanh( np.matmul( network_input , self.weights['w_in'] ) + self.weights['bias_in'] )
-        self.motion_output = np.tanh( np.matmul( latent , self.weights['w_motion'] ) + self.weights['bias_motion'] )[0]
+        latent_1 = np.tanh( np.matmul( network_input , self.weights['w_in'] ) + self.weights['bias_in'] )
+        latent_2 = np.tanh( np.matmul( latent_1 , self.weights['w_latent'] ) + self.weights['bias_latent'] )
+        self.motion_output = np.tanh( np.matmul( latent_2 , self.weights['w_motion'] ) + self.weights['bias_motion'] )[0]
         if self.use_messages:
-            self.message_output = np.tanh( np.matmul( latent , self.weights['w_message'] ) + self.weights['bias_message'] )[0]
+            self.message_output = np.tanh( np.matmul( latent_2 , self.weights['w_message'] ) + self.weights['bias_message'] )[0]
             binary_message = (self.message_output >= 0.0).astype(int)
             self.message = binary_message.dot( 1 << np.arange(binary_message.size)[::-1] )
     # end run_network

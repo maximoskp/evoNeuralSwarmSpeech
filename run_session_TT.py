@@ -11,6 +11,10 @@ import Agent
 import Evolution
 import csv
 import os
+if sys.version_info >= (3,8):
+    import pickle
+else:
+    import pickle5 as pickle
 
 session_name = 'l_TT'
 

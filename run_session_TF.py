@@ -20,37 +20,68 @@ environment = World.Environment( constants, session_name=session_name )
 
 evoConst =  Evolution.Constants()
 
-# initialize some predators and prey
-a = []
-b = []
-for i in range(constants.total_predator_agents):
-    a.append( Agent.PredatorAgent( constants=constants, environment=environment, use_messages=True ) )
-for i in range(constants.total_prey_agents):
-    b.append( Agent.PreyAgent( constants=constants, environment=environment, use_messages=False ) )
+continue_session = True
 
-# append agents in environment
-environment.set_predator_agents(a)
-environment.set_prey_agents(b)
+fields=['generation', 'iteration', 'predators', 'prey','food_min','food_mean', 'food_median', 'food_max']
 
-current_generation = 0
+if continue_session:
+    # weights files list
+    weight_files = sorted( os.listdir('weights/'+session_name) )
+    # get current generation from weights
+    wf = weight_files[-1]
+    current_generation = int(wf.split('_')[1])
+    with open('weights/' + session_name + '/' + wf, 'rb') as handle:
+        w = pickle.load(handle)
+        predator_w = w['predator']
+        prey_w = w['prey']
+        # initialize some predators and prey
+        a = []
+        b = []
+        for i in range(constants.total_predator_agents):
+            a.append( Agent.PredatorAgent( genome=predator_w[i], constants=constants, environment=environment, use_messages=False ) )
+        for i in range(constants.total_prey_agents):
+            b.append( Agent.PreyAgent( genome=prey_w[i], constants=constants, environment=environment, use_messages=False ) )
 
-if not os.path.exists('figs'):
-    os.makedirs('figs')
-if not os.path.exists('videos'):
-    os.makedirs('videos')
-if not os.path.exists('data'):
-    os.makedirs('data')
-if not os.path.exists('weights'):
-    os.makedirs('weights')
+        # append agents in environment
+        environment.set_predator_agents(a)
+        environment.set_prey_agents(b)
+else:
+    # initialize some predators and prey
+    a = []
+    b = []
+    for i in range(constants.total_predator_agents):
+        a.append( Agent.PredatorAgent( constants=constants, environment=environment, use_messages=False ) )
+    for i in range(constants.total_prey_agents):
+        b.append( Agent.PreyAgent( constants=constants, environment=environment, use_messages=False ) )
 
-if not os.path.exists('figs/' + session_name):
-    os.makedirs('figs/' + session_name)
-if not os.path.exists('videos/' + session_name):
-    os.makedirs('videos/' + session_name)
-if not os.path.exists('data/' + session_name):
-    os.makedirs('data/' + session_name)
-if not os.path.exists('weights/' + session_name):
-    os.makedirs('weights/' + session_name)
+    # append agents in environment
+    environment.set_predator_agents(a)
+    environment.set_prey_agents(b)
+
+    current_generation = 0
+
+    if not os.path.exists('figs'):
+        os.makedirs('figs')
+    if not os.path.exists('videos'):
+        os.makedirs('videos')
+    if not os.path.exists('data'):
+        os.makedirs('data')
+    if not os.path.exists('weights'):
+        os.makedirs('weights')
+
+    if not os.path.exists('figs/' + session_name):
+        os.makedirs('figs/' + session_name)
+    if not os.path.exists('videos/' + session_name):
+        os.makedirs('videos/' + session_name)
+    if not os.path.exists('data/' + session_name):
+        os.makedirs('data/' + session_name)
+    if not os.path.exists('weights/' + session_name):
+        os.makedirs('weights/' + session_name)
+
+    with open('data/' + session_name + '/_summary.csv', 'w') as f:
+        writer = csv.writer(f)
+        writer.writerow(fields)
+# end if-else
 
 fields=['generation', 'iteration', 'predators', 'prey','food_min','food_mean', 'food_median', 'food_max']
 with open('data/' + session_name + '/_summary.csv', 'w') as f:

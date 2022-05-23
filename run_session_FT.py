@@ -11,6 +11,7 @@ import Agent
 import Evolution
 import csv
 import os
+import sys
 if sys.version_info >= (3,8):
     import pickle
 else:

@@ -25,7 +25,7 @@ environment = World.Environment( constants, session_name=session_name )
 
 evoConst =  Evolution.Constants()
 
-continue_session = True
+continue_session = False
 
 fields=['generation', 'iteration', 'predators', 'prey','food_min','food_mean', 'food_median', 'food_max']
 

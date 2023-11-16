@@ -324,7 +324,7 @@ class GenericAgent:
             self.accelerate_to_location_with_multiplier( walls, self.motion_output[6] )
         # accelerate / deccelerate to current direction
         # if not moving, start moving to random direction
-        if np.abs( self.vx ) < 0.5 and np.abs( self.vy ) < 0.5:
+        if np.abs( self.vx ) < 0.5 and np.abs( self.vy ) < 0.5 and np.abs( self.ax ) < 0.05 and np.abs( self.ay ) < 0.05:
             tmp_x = 2*np.random.rand() - 1
             tmp_y = 2*np.random.rand() - 1
         else:
@@ -350,7 +350,7 @@ class GenericAgent:
     # end move
     
     def accelerate_to_location_with_multiplier( self, p, m ):
-        tmp_acceleration = ( self.location - p )
+        tmp_acceleration = ( p - self.location )
         ax , ay = aux.limit_xy( tmp_acceleration[0], tmp_acceleration[1], self.constants.agent_constants[self.category]['acceleration_limit'] )
         self.acceleration_array += m*np.array([ ax, ay ])
     # end accelerate_to_location_with_multiplier

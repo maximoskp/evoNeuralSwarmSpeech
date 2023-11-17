@@ -4,5 +4,7 @@ videos/
 weights/
 __pycache__/
 misc/
+file_server.py
+videos/file_server.py
 
 .DS_Store

@@ -55,7 +55,7 @@ else:
     for i in range(constants.total_predator_agents):
         a.append( Agent.PredatorAgent( constants=constants, environment=environment, use_messages=False ) )
     for i in range(constants.total_prey_agents):
-        b.append( Agent.PreyAgent( constants=constants, environment=environment, use_messages=False ) )
+        b.append( Agent.PreyAgent( constants=constants, environment=environment, use_messages=True ) )
 
     # append agents in environment
     environment.set_predator_agents(a)

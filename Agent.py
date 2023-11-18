@@ -50,6 +50,9 @@ class GenericAgent:
         self.message_bits = 2
         if not self.use_messages:
             self.message_bits = 0
+        # all constants
+        self.get_constants(constants)
+        self.environment = environment
         # WEIGHTS
         self.latent_1_size = 20
         self.latent_2_size = 10
@@ -61,9 +64,6 @@ class GenericAgent:
             self.genome = genome
             self.genome_size = self.genome.size
         self.genome2weights()
-        # all constants
-        self.get_constants(constants)
-        self.environment = environment
         # position, velocity and acceleration
         self.init_random()
         self.is_alive = True
@@ -108,7 +108,7 @@ class GenericAgent:
         self.genome_size = 0
         for k in self.weight_keys:
             self.genome_size += self.weights[k].size
-        self.genome = 2*np.random.random( self.genome_size ) - 1
+        self.genome = 2*self.constants.genome_range*np.random.random( self.genome_size ) - self.constants.genome_range
     # end random_genome
 
     def genome2weights(self):
@@ -397,7 +397,7 @@ class PredatorAgent(GenericAgent):
         self.is_alive = True
         self.death_iteration_number = 0
         # position
-        self.x = 0.5*np.random.rand()*self.constants.world_width
+        self.x = 0.45*np.random.rand()*self.constants.world_width
         self.y = np.random.rand()*self.constants.world_height
         # velocity
         vx = 2*np.random.rand() - 1
@@ -419,7 +419,7 @@ class PreyAgent(GenericAgent):
         self.is_alive = True
         self.death_iteration_number = 0
         # position
-        self.x = (0.5 + 0.5*np.random.rand())*self.constants.world_width
+        self.x = (0.55 + 0.55*np.random.rand())*self.constants.world_width
         self.y = np.random.rand()*self.constants.world_height
         # velocity
         vx = 2*np.random.rand() - 1

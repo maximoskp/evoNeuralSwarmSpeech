@@ -11,18 +11,14 @@ import Agent
 
 np.random.seed(0)
 
-class Constants:
-    def __init__(self):
-        self.minPopulationSize = 1
-        self.total_generations_number = 10000
-    # end
-# end Constants
-
 class Genetics:
-    def __init__(self):
+    def __init__(self, constants=None):
         self.mutation_probability = 0.02
-        self.mutation_range = [-1, 1]
-        self.fitness_bias = 1.3
+        if constants is not None:
+            self.mutation_range = [-constants.genome_range, constants.genome_range]
+        else:
+            self.mutation_range = [-1, 1]
+        self.fitness_bias = 0.5
     # end init
     
     def evolve_population( self, p , total_new ):
@@ -67,6 +63,10 @@ class Genetics:
     def double_roulette(self):
         # dice and index
         d = np.random.rand()
+        print('self.cummulative_fitness:', self.cummulative_fitness)
+        print('self.d:', d)
+        print('self.d:', d)
+        print('np.where(self.cummulative_fitness - d > 0)[0][0]:', np.where(self.cummulative_fitness - d > 0)[0][0])
         i1 = np.where(self.cummulative_fitness - d > 0)[0][0]
         # other index with max tries
         tries = 10

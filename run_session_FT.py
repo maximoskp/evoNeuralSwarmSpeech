@@ -23,8 +23,6 @@ session_name = 'l_FT'
 constants = World.Constants()
 environment = World.Environment( constants, session_name=session_name )
 
-evoConst =  Evolution.Constants()
-
 continue_session = False
 
 fields=['generation', 'iteration', 'predators', 'prey','food_min','food_mean', 'food_median', 'food_max']
@@ -45,7 +43,7 @@ if continue_session:
         for i in range(constants.total_predator_agents):
             a.append( Agent.PredatorAgent( genome=predator_w[i], constants=constants, environment=environment, use_messages=False ) )
         for i in range(constants.total_prey_agents):
-            b.append( Agent.PreyAgent( genome=prey_w[i], constants=constants, environment=environment, use_messages=False ) )
+            b.append( Agent.PreyAgent( genome=prey_w[i], constants=constants, environment=environment, use_messages=True ) )
 
         # append agents in environment
         environment.set_predator_agents(a)
@@ -93,13 +91,13 @@ with open('data/' + session_name + '/_summary.csv', 'w') as f:
     writer = csv.writer(f)
     writer.writerow(fields)
 
-while current_generation < evoConst.total_generations_number:
+while current_generation < constants.total_generations_number:
     print('generation: ' + str(current_generation) + '-----------------')
     with open('data/' + session_name + '/details_generation_' + "{:05d}".format(current_generation) + '.csv', 'w') as f:
         writer = csv.writer(f)
         writer.writerow(fields)
     environment.save_weights( generation=current_generation )
-    while len(environment.predator_agents) > evoConst.minPopulationSize and len(environment.prey_agents) > evoConst.minPopulationSize:
+    while len(environment.predator_agents) > constants.minPopulationSize and len(environment.prey_agents) > constants.minPopulationSize:
         environment.update()
         environment.plot_iteration(generation=current_generation)
         print( str(current_generation) + '-' + str(environment.total_iterations) +'| predators: ' + str(len(environment.predator_agents)) + ' (' + "{:.2f}".format(environment.min_predator_food_level) + "/{:.2f}".format(environment.mean_predator_food_level)+ "/{:.2f}".format(environment.max_predator_food_level) + ') ' + '\t - prey: ' + str(len(environment.prey_agents)) )

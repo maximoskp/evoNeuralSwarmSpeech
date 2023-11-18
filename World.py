@@ -23,6 +23,7 @@ class Constants:
     def __init__(self):
         self.make_agent_constants()
         self.make_world_constants()
+        self.make_genetic_constants()
     # end init
     
     def make_agent_constants(self):
@@ -63,6 +64,12 @@ class Constants:
         self.total_predator_agents = 100
         self.total_prey_agents = 100
     # end make_world_constants
+
+    def make_genetic_constants(self):
+        self.minPopulationSize = 1
+        self.total_generations_number = 10000
+        self.genome_range = 10
+    # end make_genetic_constants
 # end Constants
 
 class Environment:
@@ -74,8 +81,7 @@ class Environment:
         self.prey_agents = []
         self.dead_predator_agents = []
         self.dead_prey_agents = []
-        self.genetics = Evolution.Genetics()
-        self.evoConst = Evolution.Constants()
+        self.genetics = Evolution.Genetics(constants)
     # end init
     
     def update(self):

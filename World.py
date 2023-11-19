@@ -61,8 +61,8 @@ class Constants:
     def make_world_constants(self):
         self.world_width = 1920
         self.world_height = 1440
-        self.total_predator_agents = 100
-        self.total_prey_agents = 100
+        self.total_predator_agents = 10
+        self.total_prey_agents = 10
     # end make_world_constants
 
     def make_genetic_constants(self):

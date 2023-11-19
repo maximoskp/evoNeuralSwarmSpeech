@@ -17,7 +17,7 @@ if sys.version_info >= (3,8):
 else:
     import pickle5 as pickle
 
-session_name = 'l_TF'
+session_name = 'f_TF'
 
 # initialize constants and environment
 constants = World.Constants()

@@ -397,7 +397,7 @@ class PredatorAgent(GenericAgent):
         self.is_alive = True
         self.death_iteration_number = 0
         # position
-        self.x = 0.45*np.random.rand()*self.constants.world_width
+        self.x = np.random.rand()*self.constants.world_width
         self.y = np.random.rand()*self.constants.world_height
         # velocity
         vx = 2*np.random.rand() - 1
@@ -419,7 +419,7 @@ class PreyAgent(GenericAgent):
         self.is_alive = True
         self.death_iteration_number = 0
         # position
-        self.x = (0.55 + 0.55*np.random.rand())*self.constants.world_width
+        self.x = np.random.rand()*self.constants.world_width
         self.y = np.random.rand()*self.constants.world_height
         # velocity
         vx = 2*np.random.rand() - 1

@@ -23,36 +23,35 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 
-session = 'FT'
+for sub_folder in ['l_FF', 'l_FT', 'l_TF', 'l_TT']:
+    predator_w = []
+    prey_w = []
 
-predator_w = []
-prey_w = []
+    wl = os.listdir('../weights/' + sub_folder)
+    wl.sort()
 
-wl = os.listdir('../weights/' + session)
-wl.sort()
+    for wf in wl:
+        with open('../weights/' + sub_folder + '/' + wf, 'rb') as handle:
+            w = pickle.load(handle)
+            predator_w.append( w['predator'] )
+            prey_w.append( w['prey'] )
 
-for wf in wl:
-    with open('../weights/' + session + '/' + wf, 'rb') as handle:
-        w = pickle.load(handle)
-        predator_w.append( w['predator'] )
-        prey_w.append( w['prey'] )
+    # %% 
 
-# %% 
+    predator = np.array( predator_w )
+    prey = np.array( prey_w )
 
-predator = np.array( predator_w )
-prey = np.array( prey_w )
+    # %%
 
-# %%
+    pred_mean = np.mean( predator, axis=1 )
+    prey_mean = np.mean( prey, axis=1 )
 
-pred_mean = np.mean( predator, axis=1 )
-prey_mean = np.mean( prey, axis=1 )
+    predator_diffs = np.mean( np.abs( np.diff( pred_mean, axis=1 ) ), axis=1 )
+    prey_diffs = np.mean( np.abs( np.diff( prey_mean, axis=1 ) ), axis=1 )
 
-predator_diffs = np.mean( np.abs( np.diff( pred_mean, axis=1 ) ), axis=1 )
-prey_diffs = np.mean( np.abs( np.diff( prey_mean, axis=1 ) ), axis=1 )
+    # %% 
 
-# %% 
-
-plt.clf()
-plt.plot( predator_diffs[10:] )
-plt.plot( prey_diffs[10:] )
-plt.show()
+    plt.clf()
+    plt.plot( predator_diffs[10:] )
+    plt.plot( prey_diffs[10:] )
+    plt.savefig('figs/weight_diffs_' + sub_folder + '.png')

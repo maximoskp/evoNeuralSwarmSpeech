@@ -10,10 +10,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-df_TT = pd.read_csv('../data/TT/_summary.csv')
-df_FT = pd.read_csv('../data/FT/_summary.csv')
-df_FF = pd.read_csv('../data/FF/_summary.csv')
-df_TF = pd.read_csv('../data/TF/_summary.csv')
+df_TT = pd.read_csv('../data/l_TT/_summary.csv')
+df_FT = pd.read_csv('../data/l_FT/_summary.csv')
+df_FF = pd.read_csv('../data/l_FF/_summary.csv')
+df_TF = pd.read_csv('../data/l_TF/_summary.csv')
 
 # %% stats
 
@@ -57,7 +57,7 @@ plt.plot(df_TF['predators'],'-r', label='predators')
 plt.plot(df_TF['prey'],'-g', label='prey')
 plt.legend(loc='best')
 plt.title('TF')
-plt.show()
+plt.savefig('figs/summary.png')
 
 # %% 
 

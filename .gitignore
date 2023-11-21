@@ -6,5 +6,6 @@ __pycache__/
 misc/
 file_server.py
 videos/file_server.py
+analysis/figs/
 
 .DS_Store

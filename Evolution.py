@@ -13,11 +13,14 @@ np.random.seed(0)
 
 class Genetics:
     def __init__(self, constants=None):
-        self.mutation_probability = 0.02
+        self.mutation_probability = 0.1
+        self.constants = constants
         if constants is not None:
-            self.mutation_range = [-constants.genome_range, constants.genome_range]
+            self.genome_range = [constants.genome_range, constants.genome_range]
+            self.mutation_range = [-0.1*constants.genome_range, 0.1*constants.genome_range]
         else:
-            self.mutation_range = [-1, 1]
+            self.genome_range = [-1,1]
+            self.mutation_range = [-0.1, 0.1]
         self.fitness_bias = 0.5
     # end init
     
@@ -102,6 +105,9 @@ class Genetics:
     def mutation(self, p):
         gsize = p.genome.size
         i = np.random.randint( gsize )
-        p.genome[i] = self.mutation_range[0] + np.random.random()*(self.mutation_range[1]-self.mutation_range[0])
+        mutation_value = p.genome[i] + self.mutation_range[0] + np.random.random()*(self.mutation_range[1]-self.mutation_range[0])
+        while mutation_value > self.genome_range[1] and mutation_value < self.genome_range[0]:
+            mutation_value = p.genome[i] + self.mutation_range[0] + np.random.random()*(self.mutation_range[1]-self.mutation_range[0])
+        # p.genome[i] = self.mutation_range[0] + np.random.random()*(self.mutation_range[1]-self.mutation_range[0])
     # end mutation
 # end evolution
